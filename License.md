@@ -1,0 +1,1 @@
+All rights reserved. No part of this project, including code, data, or documentation, may be used, copied, modified, or distributed without prior written permission from the project authors and module leader. This repository is for Master Group Project, Educational Purpose Only.
