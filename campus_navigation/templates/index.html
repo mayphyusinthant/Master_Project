@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Navigation</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #map-container { width: 100%; height: 600px; }
+        svg { width: 100%; height: 100%; border: 1px solid black; }
+        .room { cursor: pointer; fill: lightblue; transition: fill 0.2s; }
+        .room:hover { fill: orange; }
+    </style>
+</head>
+<body>
+    <h2>Campus Map</h2>
+    <div id="map-container"></div>
+
+    <script>
+        // Load the SVG file into the div
+        d3.xml("/static/bitmap.svg").then(function(xml) {
+            let importedNode = document.importNode(xml.documentElement, true);
+            d3.select("#map-container").node().appendChild(importedNode);
+
+            // Make rooms interactive
+            d3.selectAll("[class^='room']").each(function() {
+                let room = d3.select(this);
+                let roomClass = room.attr("class");
+                room
+                    .on("mouseover", function() {
+                        room.style("fill", "orange"); 
+                    })
+                    .on("mouseout", function() {
+                        room.style("fill", "lightblue"); 
+                    })
+                    .on("click", function() {
+                        let roomId = room.attr("id"); 
+                        alert("You clicked " + roomId + " which is a " + roomClass);
+                    });
+                }); 
+            })
+    </script>
+</body>
+</html>
