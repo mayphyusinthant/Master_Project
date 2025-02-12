@@ -2,7 +2,6 @@
 
 Campus Navigator for Merchiston
 Mainly target for students to find their routes around the campus in real-time and help them to navigate to the selected destination or room by using our app.
-![image](https://github.com/user-attachments/assets/ccbf816a-d4f3-4239-b9a8-37e97d33633e)
 
 Main Features
 1. Real-time Campus Navigation 
