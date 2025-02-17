@@ -1,12 +1,5 @@
 import { Card, CardActionArea, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-
-CardButton.propTypes = {
-  name: PropTypes.string.isRequired, // Ensure name is a required string
-  path: PropTypes.string.isRequired, // Ensure path is a required string
-  icon: PropTypes.node, // Ensure icon is a React node (component)
-};
 
 export const CardButton = ({ name, path, icon }) => (
   <Card
