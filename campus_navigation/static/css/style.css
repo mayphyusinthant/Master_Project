@@ -8,7 +8,7 @@ html {
     }
   }
   
-  p, h1, h2, h3, h4, h5, h6, a {
+  p, h1, h2, h3, h4, h5, h6, a, th, tr, td, b {
     font-family:'Times New Roman', Times, serif;
     color: #441011;
   }
@@ -26,11 +26,42 @@ html {
     display: block;
   }
 
+  .pagination .page-item .page-link {
+      background-color: #552425;
+      border-color: #552425; 
+      color: white; 
+}
+
+  .pagination .page-item .page-link:hover {
+    background-color: #552425;
+    border-color: #552425;
+    color: white; 
+
+  }
+
+  .pagination .page-item.active .page-link {
+      background-color: #441011;
+      border-color: #441011;
+      color: white; 
+  }
+
+  .bg-custom-icon {
+    background-color: #441011;
+    font-family: 'Times New Roman', Times, serif;
+    border-radius: 5px;
+    font-size: 14px;
+    padding: 7px;
+    margin: 5px;
+    color: white; 
+  }
+
+
 
   body {
     margin-bottom: 60px;
   }
   
+
 
   /* .container {
     display: flex;

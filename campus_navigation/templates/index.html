@@ -1,9 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Campus Navigation</title>
+    <script type="importmap"></script>
+
+    <!-- Link to external css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!--Required CDN: Bootstrap | Popper | Jquery to Work Boostrap Collapse Properly-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"> </link>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"> </link>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; }
@@ -13,29 +24,30 @@
         .room:hover { fill: orange; }
     </style>
 </head>
-<body>
-    <h2>Campus Map</h2><br/>
-    <div id="map-container"></div>
 
-    <script>
-        d3.xml("/static/Floor_C.svg").then(function(xml) {
-        let importedNode = document.importNode(xml.documentElement, true);
-        d3.select("#map-container").node().appendChild(importedNode);
+<script>
+    function loadFloorSVG(floor) {
+        d3.xml(`/static/${floor}.svg`).then(function(xml) {
+            document.getElementById("map-container").innerHTML = 
+            `<div class="mx-5 px-5">{% for floor in floors %}<button class="bg-custom-icon" onclick="loadFloorSVG('{{ floor }}')"> {{ floor }} </button>{% endfor %}</div>`;
 
-        document.querySelectorAll("g").forEach((room) => {
-            let currentRoomId = room.id;                 
+            let importedNode = document.importNode(xml.documentElement, true);
+            d3.select("#map-container").node().appendChild(importedNode);
 
-            d3.select(room)
-            .on("mouseover", function() {
-                d3.select(document.querySelector("#" + currentRoomId)).classed("highlight", true);
-                console.log("Mouse Over Room -", currentRoomId);
-            })
-            .on("mouseout", function() {
-                console.log("Mouse Out Room -", currentRoomId);
-                d3.select(document.querySelector("#" + currentRoomId)).classed("highlight", false);
-            })
-            .on("click", function() {
-                alert("You clicked " + currentRoomId);
+            document.querySelectorAll("g").forEach((room) => {
+                let currentRoomId = room.id;
+                d3.select(room)
+                .on("mouseover", function() {
+                    d3.select(document.querySelector("#" + currentRoomId)).classed("highlight", true);
+                    console.log("Mouse Over Room -", currentRoomId);
+                })
+                .on("mouseout", function() {
+                    console.log("Mouse Out Room -", currentRoomId);
+                    d3.select(document.querySelector("#" + currentRoomId)).classed("highlight", false);
+                })
+                .on("click", function() {
+                    alert("You clicked " + currentRoomId);
+                });
             });
         });
 
@@ -45,30 +57,47 @@
             .highlight text {fill : white; }
         `;
         document.head.appendChild(style);
- 
-
-    // d3.selectAll("[id^='C']").each(function() {
-    //     let room = d3.select(this);
-    //     let roomClass = room.attr("id"); 
-    //     room
-    //         .on("mouseover", function() {
-    //             room.style("fill", "orange"); 
-    //             d3.selectAll("id='C77'").style("background-color", "purple");
-
-    //         })
-    //         .on("mouseout", function() {
-    //             room.style("fill", "lightblue"); 
-    //             d3.selectAll(id=roomClass).style("background-color", "white");
-
-
-    //         })
-    //         .on("click", function() {
-    //             let roomId = room.attr("id"); 
-    //             alert("You clicked " + roomId + " which is a " + roomClass);
-    //         });
-    // }); 
-});
-
+    }
     </script>
-</body>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                
+                <a class="navbar-brand" href = "/"> Campus Navigator</a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a href = "campus_info" class="nav-link text-dark" >Campus Info</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href = "/" class="nav-link text-dark" >Navigator</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" >
+                                <i class="bi bi-person-circle"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div id="map-container">
+        <div class = "mx-5 px-5" >
+            {% for floor in floors %}
+            <button class = "bg-custom-icon" onclick="loadFloorSVG('{{ floor }}')"> {{ floor }} </button>
+            {% endfor %}
+        </div>
+
+        <script> loadFloorSVG("Floor A") </script>
+    </div>
+    </body>
 </html>
