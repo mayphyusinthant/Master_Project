@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title> Campus Navigator</title>
+    <title> Campus Info</title>
     <script type="importmap"></script>
 
     <!-- Link to external css -->
@@ -30,7 +30,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a href = "campus_mgmt" class="nav-link text-dark" >Campus Rooms Management</a>
+                            <a href = "campus_info" class="nav-link text-dark" >Campus Info</a>
                         </li>
                         <li class="nav-item">
                             <a href = "/" class="nav-link text-dark" >Navigator</a>
@@ -47,7 +47,55 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
-           
+            <div class = " mb-5 ">
+
+            <div class="d-flex justify-content-between mx-auto my-0">     
+                <b class=""> Location - Merchiston, Napier </b>
+            </div>
+
+            <table  class = "table border my-3 mx-auto col-8 responsive">
+                <thead>
+                    <tr>
+                        <th>No:</th>
+                        <th>Room Name</th>
+                        <th>Description</th>
+                        <th>Floor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                    <tr>
+                        <td>{{ loop.index + ((page - 1) * 25) }}</td> 
+                        <td>{{ room[1] }}</td>
+                        <td>{{ room[2] }}</td>
+                        <td>{{ room[3] }}</td>  
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if page > 1 %}
+                    <li class="page-item bg-custom text-white">
+                        <a class="page-link" href="{{ url_for('campus_mgmt', page=page-1) }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    {% for p in range(1, total_pages + 1) %}
+                    <li class="page-item {% if p == page %}active{% endif %} bg-custom text-white">
+                        <a class="page-link" href="{{ url_for('campus_mgmt', page=p) }}">{{ p }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page < total_pages %}
+                    <li class="page-item bg-custom text-white">
+                        <a class="page-link" href="{{ url_for('campus_mgmt', page=page+1) }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            
+        </div>
         </main>
     </div>
 
