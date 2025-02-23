@@ -1,6 +1,6 @@
 import { Box, Container } from '@mui/material';
 import { CardButton } from './CardButton';
-import { pages } from './pages';
+import { pages } from '../pages';
 
 export const DashboarButtons = () => {
   return (

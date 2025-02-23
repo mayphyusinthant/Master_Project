@@ -1,9 +1,9 @@
 import { PageTitle } from '../components/pageTitle';
 
-export const LibraryInfo = () => {
+export const RoomBooking = () => {
   return (
     <>
-      <PageTitle title="Library Information" />
+      <PageTitle title="Room Booking" />
     </>
   );
 };
