@@ -1,12 +1,43 @@
-import { Autocomplete, Box, TextField, Typography, Card, CardContent, Grid2 } from '@mui/material';
-import image from '../assets/banner.png';
+import {
+  Autocomplete,
+  TextField,
+  Typography,
+  Card,
+  CardContent,
+  Grid2,
+  Button,
+} from '@mui/material';
+import map from '../assets/Floors/FLOOR B.svg';
 import { useState } from 'react';
-import { locations } from '../locations';
+import { locations } from '../data/locations';
+import Map from '../components/Map';
+
+import floorA from '../assets/Floors/FLOOR A.svg';
+import floorB from '../assets/Floors/FLOOR B.svg';
+import floorC from '../assets/Floors/FLOOR C.svg';
+import floorD from '../assets/Floors/FLOOR D.svg';
+import floorE from '../assets/Floors/FLOOR E.svg';
+import floorF from '../assets/Floors/FLOOR F.svg';
+import floorG from '../assets/Floors/FLOOR G.svg';
+import floorH from '../assets/Floors/FLOOR H.svg';
+
+// Map floor letters to image files
+const floorMaps = {
+  A: floorA,
+  B: floorB,
+  C: floorC,
+  D: floorD,
+  E: floorE,
+  F: floorF,
+  G: floorG,
+  H: floorH,
+};
 // Import room data
 
 export const PlanInfo = () => {
   const [selectedType, setSelectedType] = useState('');
   const [selectedRoom, setSelectedRoom] = useState(null); // Store full room object
+  const [selectedFloor, setSelectedFloor] = useState('A');
 
   // Get unique room types from locations.js
   const roomTypes = [...new Set(locations.map((room) => room.type))];
@@ -17,7 +48,17 @@ export const PlanInfo = () => {
   return (
     <Grid2 container spacing={4} justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
       {/* Left Side - Room Information */}
-      <Grid2 item xs={12} md={5} display="flex" flexDirection="column" gap={2}>
+      <Grid2
+        item
+        xs={12}
+        justifyContent="center"
+        // alignItems="center"
+        md={5}
+        display="flex"
+        flexDirection="column"
+        gap={2}
+        sx={{ minHeight: 160 }}
+      >
         <Autocomplete
           options={roomTypes}
           value={selectedType}
@@ -57,13 +98,22 @@ export const PlanInfo = () => {
           </CardContent>
         </Card>
       </Grid2>
+      <Grid2 item xs={12} display="flex" justifyContent="center" gap={1} flexWrap="wrap">
+        {Object.keys(floorMaps).map((floor) => (
+          <Button
+            key={floor}
+            variant={selectedFloor === floor ? 'contained' : 'outlined'}
+            onClick={() => setSelectedFloor(floor)}
+          >
+            {floor}
+          </Button>
+        ))}
+      </Grid2>
 
       {/* Right Side - Selection Fields */}
 
       {/* Full Width Image */}
-      <Grid2 item xs={12} display="flex" justifyContent="center">
-        <img src={image} alt="Map" style={{ maxWidth: '100%', height: 'auto' }} />
-      </Grid2>
+      <Map zoom={3} map={floorMaps[selectedFloor]} />
     </Grid2>
   );
 };
