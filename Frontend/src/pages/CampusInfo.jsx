@@ -1,3 +1,9 @@
+import { PageTitle } from '../components/pageTitle';
+
 export const CampusInfo = () => {
-  return <div>CampusInfo</div>;
+  return (
+    <>
+      <PageTitle title="Campus Information" />
+    </>
+  );
 };
