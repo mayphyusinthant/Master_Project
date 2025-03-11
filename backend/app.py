@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request
 from flask_mysqldb import MySQL
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 
@@ -45,6 +47,22 @@ def users():
     data = cur.fetchall()
     cur.close()
     return str(data)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+from flask import Flask
+from app.routes import main_routes  # Import your routes from routes.py
+
+app = Flask(__name__)
+CORS(app)
+
+# Initialize configuration (if needed)
+app.config.from_object('app.config.Config')
+
+# Register the routes
+app.register_blueprint(main_routes)
 
 if __name__ == '__main__':
     app.run(debug=True)
