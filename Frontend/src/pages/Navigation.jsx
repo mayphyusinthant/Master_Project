@@ -2,6 +2,7 @@ import { Box, Autocomplete, TextField, Button } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addRoute, setSelectedRoute } from '../features/history/historySlice';
+import { CircularProgress } from '@mui/material';
 // import { locations } from '../data/locations';
 
 import 'leaflet/dist/leaflet.css'; // Import Leaflet styles
@@ -17,6 +18,8 @@ export const Navigation = () => {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [zoom, setZoom] = useState(3);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // fetch al lthe rooms
   useEffect(()=> {
@@ -34,6 +37,25 @@ export const Navigation = () => {
     if (from && to) {
       setZoom(4);
       dispatch(addRoute({ from, to }));
+      setLoading(true);
+      setMessage(''); // Clear previous message
+  
+      fetch("http://localhost:5000/api/navigate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ from, to }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setMessage(data.message);
+        })
+        .catch((err) => {
+          console.error("Error sending navigation data:", err);
+          setMessage("Something went wrong. Please try again.");
+        })
+        .finally(() => setLoading(false));
     }
   };
 
@@ -52,7 +74,7 @@ export const Navigation = () => {
       <Autocomplete
   options={locations}
   getOptionLabel={(option) => option.roomName}
-  isOptionEqualToValue={(option, value) => option.id === value.id}
+ 
   value={locations.find((room) => room.roomName === from) || null}
   onChange={(event, newValue) => setFrom(newValue?.roomName || '')}
   renderOption={(props, option) => (
@@ -66,7 +88,7 @@ export const Navigation = () => {
 <Autocomplete
   options={locations}
   getOptionLabel={(option) => option.roomName}
-  isOptionEqualToValue={(option, value) => option.id === value.id}
+  
   value={locations.find((room) => room.roomName === to) || null}
   onChange={(event, newValue) => setTo(newValue?.roomName || '')}
   renderOption={(props, option) => (
@@ -83,6 +105,17 @@ export const Navigation = () => {
       </Box>
 
       <Map zoom={zoom} map={map} />
+      {loading ? (
+  <Box mt={2}>
+    <CircularProgress />
+  </Box>
+) : (
+  message && (
+    <Box mt={2} p={2} border="1px solid #ccc" borderRadius="8px" bgcolor="#f9f9f9">
+      {message}
+    </Box>
+  )
+)}
     </Box>
   );
 };
