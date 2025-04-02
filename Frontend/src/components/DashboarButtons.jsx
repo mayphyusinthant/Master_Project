@@ -16,8 +16,8 @@ export const DashboarButtons = () => {
         alignItems="center"
         justifyItems="center" // Ensures each item is centered in its grid cell
       >
-        {pages.map(({ name, path, icon: Icon }, index) => (
-          <CardButton key={index} name={name} path={path} icon={<Icon fontSize="large" />} />
+        {pages.map(({ name, path, icon }, index) => (
+          <CardButton key={index} name={name} path={path} icon={icon} />
         ))}
       </Box>
     </Container>

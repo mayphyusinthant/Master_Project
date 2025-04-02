@@ -1,9 +1,18 @@
 #root {
   text-align: center;
-  background-color: rgb(245, 245, 245);
+
+
+  background: rgb(205,252,241);
+  background: linear-gradient(90deg, rgba(205,252,241,0.8979051093093487) 0%, rgba(241,254,251,1) 16%, rgba(248,254,253,1) 49%, rgba(241,254,251,1) 84%, rgba(205,252,241,1) 100%);
 }
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+
+.leaflet-container {
+  background: #ffffff !important;
+  outline: 0;
 }
