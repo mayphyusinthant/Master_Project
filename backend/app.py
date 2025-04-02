@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 
 
 app = Flask(__name__)
+
+CORS(app)
 
 # MySQL Configuration
 app.config['MYSQL_HOST'] = 'localhost'
@@ -48,21 +50,39 @@ def users():
     cur.close()
     return str(data)
 
+# api routes for react (need to be imported from file after)
+@app.route('/api/rooms', methods=['GET'])
+def get_rooms():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT room_id, room_name, room_type, description, floor, x_coordinate, y_coordinate FROM room_info")
+    rows = cur.fetchall()
+    cur.close()
+
+    rooms = []
+    for row in rows:
+         rooms.append({
+            "roomId": f"{row[3] if row[3] else row[1]}",  # fallback if description is empty
+            "roomName": row[1],
+            "type": row[2],
+            "description": row[3],
+            "floor": row[4],
+            "x_coordinate": row[5],
+            "y_coordinate": row[6]
+        })
+
+    return jsonify(rooms)
+
 if __name__ == '__main__':
     app.run(debug=True)
 
 
-from flask import Flask
-from app.routes import main_routes  # Import your routes from routes.py
 
-app = Flask(__name__)
-CORS(app)
 
-# Initialize configuration (if needed)
-app.config.from_object('app.config.Config')
+# # Initialize configuration (if needed)
+# app.config.from_object('app.config.Config')
 
-# Register the routes
-app.register_blueprint(main_routes)
+# # Register the routes
+# app.register_blueprint(main_routes)
 
 if __name__ == '__main__':
     app.run(debug=True)
