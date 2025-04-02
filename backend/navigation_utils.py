@@ -14,5 +14,6 @@ def create_navigation(from_room, to_room):
        
         f"The route between rooms {from_name} - {from_floor} and {to_name} - {to_floor} has been successfully built. "
         f"Coordinates for them: FROM({from_x}, {from_y}), TO({to_x}, {to_y})"
-        f"TO({to_x}, {to_y})"
+        f"Please follow the signs to reach your destination. "
+        f"Have a great day!"
     )
