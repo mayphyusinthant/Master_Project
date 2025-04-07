@@ -2,10 +2,12 @@ from flask import Flask, render_template, request, jsonify
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 from navigation_utils import create_navigation
+from datetime import datetime
+import time
 
 app = Flask(__name__)
 
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
 # MySQL Configuration
 app.config['MYSQL_HOST'] = 'localhost'
@@ -54,7 +56,8 @@ def users():
 @app.route('/api/rooms', methods=['GET'])
 def get_rooms():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT room_id, room_name, room_type, description, floor, x_coordinate, y_coordinate FROM room_info")
+    query = """SELECT * FROM room_info"""
+    cur.execute(query)   
     rows = cur.fetchall()
     cur.close()
 
@@ -69,6 +72,7 @@ def get_rooms():
         })
 
     return jsonify(rooms)
+
 
 @app.route('/api/navigate', methods=['POST'])
 def handle_navigation():
@@ -113,6 +117,54 @@ def handle_navigation():
     return jsonify({"status": "success", "message": result}), 200
 
 
+
+@app.route('/api/available_library_rooms', methods=['GET'])
+def get_available_library_rooms():
+
+    start_dt = datetime.strptime(request.args.get('start_date_time'), "%Y-%m-%d %H:%M:%S")
+    end_dt = datetime.strptime(request.args.get('end_date_time'), "%Y-%m-%d %H:%M:%S")
+
+    # Validate input
+    if not start_dt or not end_dt:
+        return jsonify({"error": "start_date_time and end_date_time are required"}), 400
+
+    start_dt_str = start_dt.strftime('%Y-%m-%d %H:%M:%S')
+    end_dt_str = end_dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    
+
+    cur = mysql.connection.cursor()
+    query = """
+        SELECT * FROM room_info 
+        WHERE room_id NOT IN (
+            SELECT room_id 
+            FROM rooms_booking_info 
+            WHERE 
+                (start_date_time >= %s AND start_date_time <= %s)  
+                OR 
+                (end_date_time >= %s AND end_date_time <= %s)
+        ) 
+        AND room_name LIKE %s;
+    """
+    
+    params = (start_dt_str, end_dt_str, start_dt_str, end_dt_str, 'L%')
+    cur.execute(query, params)
+   
+    rows = cur.fetchall()
+    cur.close()
+
+    # Prepare the available rooms data
+    available_library_rooms = []
+    for row in rows:
+        available_library_rooms.append({
+            "roomId": row[0],
+            "roomName": row[1],
+            "type": row[2],
+            "description": row[3],
+            "floor": row[4]
+        })
+
+    return jsonify(available_library_rooms)
 
 
 
