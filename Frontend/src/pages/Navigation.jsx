@@ -21,7 +21,7 @@ export const Navigation = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // fetch al lthe rooms
+  // fetch all the rooms
   useEffect(()=> {
     fetch("http://localhost:5000/api/rooms")
       .then((response) => response.json())

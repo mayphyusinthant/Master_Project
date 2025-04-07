@@ -76,6 +76,7 @@ def handle_navigation():
     print(data)
     from_name = data.get('from')
     to_name = data.get('to')
+    # ExecNavigation(initialNode, goalNode) FUNCTION HERE <------------
 
     cur = mysql.connection.cursor()
 

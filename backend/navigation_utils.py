@@ -1,3 +1,5 @@
+from svgelements import *
+
 def create_navigation(from_room, to_room):
     
     from_name = from_room['roomName']
@@ -17,3 +19,5 @@ def create_navigation(from_room, to_room):
         f"Please follow the signs to reach your destination. "
         f"Have a great day!"
     )
+
+# Pathfinding logic here
