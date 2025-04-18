@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 15, 2025 at 04:27 AM
+-- Generation Time: Apr 07, 2025 at 05:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -73,6 +73,13 @@ CREATE TABLE `rooms_booking_info` (
   `student_id` int(11) NOT NULL COMMENT 'Student ID who booked the room'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+--
+-- Dumping data for table `rooms_booking_info`
+--
+
+INSERT INTO `rooms_booking_info` (`booking_id`, `room_id`, `start_date_time`, `end_date_time`, `status`, `student_id`) VALUES
+(1, 1, '2025-04-30 10:00:00', '2025-04-30 12:00:00', '', 40643456);
+
 -- --------------------------------------------------------
 
 --
@@ -83,7 +90,7 @@ CREATE TABLE `room_info` (
   `room_id` int(11) NOT NULL,
   `room_name` varchar(50) NOT NULL,
   `room_type` varchar(255) NOT NULL,
-  `description` varchar(50) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   `floor` varchar(50) NOT NULL,
   `x_coordinate` int(11) NOT NULL,
   `y_coordinate` int(11) NOT NULL,
@@ -97,26 +104,26 @@ CREATE TABLE `room_info` (
 INSERT INTO `room_info` (`room_id`, `room_name`, `room_type`, `description`, `floor`, `x_coordinate`, `y_coordinate`, `campus_id`) VALUES
 (1, 'L23', '', '-', 'Floor C', 0, 0, 1),
 (2, 'L22', '', '-', 'Floor C', 0, 0, 1),
-(3, 'L21', '', '-', 'Floor C', 0, 0, 1),
-(4, 'L20', '', '-', 'Floor C', 0, 0, 1),
+(3, 'L21', 'Study Pod', 'Study Room 10 - Capacity 4', 'Floor C', 0, 0, 1),
+(4, 'L20', 'Study Pod', 'Study Room 9 - Capacity 4', 'Floor C', 0, 0, 1),
 (5, 'C1', '', '-', 'Floor C', 0, 0, 1),
-(6, 'C2', '', '-', 'Floor C', 0, 0, 1),
-(7, 'C3', '', '-', 'Floor C', 0, 0, 1),
+(6, 'C2', 'SCEBE Location', 'Laboratory Nano Technology - Capacity 28', 'Floor C', 0, 0, 1),
+(7, 'C3', 'SCEBE Location', 'Laboratory Vibration - Capacity 28', 'Floor C', 0, 0, 1),
 (8, 'C4', '', '-', 'Floor C', 0, 0, 1),
 (9, 'C5', '', '-', 'Floor C', 0, 0, 1),
-(10, 'C6', '', '-', 'Floor C', 0, 0, 1),
+(10, 'C6', 'SCEBE Location', 'Computer Room - Embedded Systems Lab - Capacity 25', 'Floor C', 0, 0, 1),
 (11, 'C7', '', '-', 'Floor C', 0, 0, 1),
 (12, 'C8', '', '-', 'Floor C', 0, 0, 1),
 (13, 'C9', '', '-', 'Floor C', 0, 0, 1),
 (14, 'C10', '', '-', 'Floor C', 0, 0, 1),
 (15, 'C11', '', '-', 'Floor C', 0, 0, 1),
-(16, 'C16', '', '-', 'Floor C', 0, 0, 1),
+(16, 'C16', 'SCEBE Location', 'Laboratory - GP Electronics Lab - Capacity 28', 'Floor C', 0, 0, 1),
 (17, 'C17', '', '-', 'Floor C', 0, 0, 1),
 (18, 'C18', '', '-', 'Floor C', 0, 0, 1),
 (19, 'C19', '', '-', 'Floor C', 0, 0, 1),
-(20, 'C20', '', '-', 'Floor C', 0, 0, 1),
-(21, 'C21', '', '-', 'Floor C', 0, 0, 1),
-(27, 'C30', '', '-', 'Floor C', 0, 0, 1),
+(20, 'C20', 'SCEBE Location', 'Laboratory - Capacity 28', 'Floor C', 0, 0, 1),
+(21, 'C21', ' ', ' ', 'Floor C', 0, 0, 1),
+(27, 'C30', 'SCEBE Location', 'Computer Room - DSP Lab - Capacity 24', 'Floor C', 0, 0, 1),
 (28, 'C31a', '', '-', 'Floor C', 0, 0, 1),
 (29, 'C31', '', '-', 'Floor C', 0, 0, 1),
 (30, 'C32', '', '-', 'Floor C', 0, 0, 1),
@@ -240,7 +247,7 @@ INSERT INTO `room_info` (`room_id`, `room_name`, `room_type`, `description`, `fl
 (148, 'Elevator4', '', 'Elevator', 'Floor C', 0, 0, 1),
 (149, 'Elevator5', '', 'Elevator', 'Floor C', 0, 0, 1),
 (150, 'Elevator6', '', 'Elevator', 'Floor C', 0, 0, 1),
-(151, 'Library', '', '-', 'Floor C', 0, 0, 1),
+(151, 'Library', '', 'Library Area', 'Floor C', 0, 0, 1),
 (152, 'A79a', '', '-', 'Floor A', 0, 0, 1),
 (153, 'A79', '', '-', 'Floor A', 0, 0, 1),
 (154, 'A79b', '', '-', 'Floor A', 0, 0, 1),
@@ -324,18 +331,18 @@ INSERT INTO `room_info` (`room_id`, `room_name`, `room_type`, `description`, `fl
 (232, 'A37', '', '-', 'Floor A', 0, 0, 1),
 (233, 'A103', '', 'JKCC Plant', 'Floor A', 0, 0, 1),
 (234, 'A109', '', '-', 'Floor A', 0, 0, 1),
-(235, 'A15', '', 'Fluids Lab', 'Floor A', 0, 0, 1),
-(236, 'A16', '', '-', 'Floor A', 0, 0, 1),
+(235, 'A15', 'SCEBE Location', 'Laboratory - Fluids Lab - Capacity 25', 'Floor A', 0, 0, 1),
+(236, 'A16', 'SCEBE Location', 'Laboratory - Project Area RM-Fluid Mechanics - Capacity 25', 'Floor A', 0, 0, 1),
 (237, 'A16a', '', '-', 'Floor A', 0, 0, 1),
-(238, 'A18d', '', 'Materials Lab', 'Floor A', 0, 0, 1),
-(239, 'A18c', '', '-', 'Floor A', 0, 0, 1),
-(240, 'A18b', '', '-', 'Floor A', 0, 0, 1),
-(241, 'A18a', '', '-', 'Floor A', 0, 0, 1),
-(242, 'A18', '', '-', 'Floor A', 0, 0, 1),
-(243, 'A18e', '', '-', 'Floor A', 0, 0, 1),
-(244, 'A19', '', '-', 'Floor A', 0, 0, 1),
-(245, 'A19b', '', '-', 'Floor A', 0, 0, 1),
-(246, 'A19a', '', '-', 'Floor A', 0, 0, 1),
+(238, 'A18d', 'SCEBE Location', 'Laboratory - Materials Lab - Capacity 20', 'Floor A', 0, 0, 1),
+(239, 'A18c', 'SCEBE Location', '-', 'Floor A', 0, 0, 1),
+(240, 'A18b', 'SCEBE Location', '-', 'Floor A', 0, 0, 1),
+(241, 'A18a', 'SCEBE Location', '-', 'Floor A', 0, 0, 1),
+(242, 'A18', 'SCEBE Location', '-', 'Floor A', 0, 0, 1),
+(243, 'A18e', 'SCEBE Location', 'Laboratory - Materials Lab - Capacity 20', 'Floor A', 0, 0, 1),
+(244, 'A19', 'SCEBE Location', 'Laboratory - Materials Avoid Concurrency', 'Floor A', 0, 0, 1),
+(245, 'A19b', 'SCEBE Location', 'Laboratory - Workplace - Capacity 1', 'Floor A', 0, 0, 1),
+(246, 'A19a', 'SCEBE Location', 'Laboratory - Workplace - Capacity 1', 'Floor A', 0, 0, 1),
 (247, 'A17', '', 'Lecture Theatre', 'Floor A', 0, 0, 1),
 (248, 'A20', '', '-', 'Floor A', 0, 0, 1),
 (249, 'A32', '', '-', 'Floor A', 0, 0, 1),
@@ -358,28 +365,28 @@ INSERT INTO `room_info` (`room_id`, `room_name`, `room_type`, `description`, `fl
 (266, 'A27', '', '-', 'Floor A', 0, 0, 1),
 (267, 'JKCC', '', 'Jack Kilby Computer Suite', 'Floor B', 0, 0, 1),
 (268, 'L14', '', 'Library Study Area', 'Floor B', 0, 0, 1),
-(269, 'L15', '', 'Library Study Area', 'Floor B', 0, 0, 1),
-(270, 'L16', '', 'Library Study Area', 'Floor B', 0, 0, 1),
-(271, 'L27', '', 'Library Study Area', 'Floor B', 0, 0, 1),
+(269, 'L15', '', '', 'Floor B', 0, 0, 1),
+(270, 'L16', 'Group Meeting Room', 'Study Room 7 - Capacity 10', 'Floor B', 0, 0, 1),
+(271, 'L27', 'Study Pod', 'Study Room 9 - Capacity 4', 'Floor B', 0, 0, 1),
 (272, 'L5d', '', 'Library Study Area', 'Floor B', 0, 0, 1),
-(273, 'L5c', '', 'Library Study Area', 'Floor B', 0, 0, 1),
-(274, 'L5b', '', 'Library Study Area', 'Floor B', 0, 0, 1),
-(275, 'L5a', '', 'Library Study Area', 'Floor B', 0, 0, 1),
-(276, 'L5', '', 'Library Study Area', 'Floor B', 0, 0, 1),
+(273, 'L5c', 'Group Meeting Room', 'Study Room 6 - Capacity 10', 'Floor B', 0, 0, 1),
+(274, 'L5b', 'Group Meeting Room', 'Study Room 5 - Capacity 10', 'Floor B', 0, 0, 1),
+(275, 'L5a', 'Group Meeting Room', 'Study Room 8 - Capacity 8', 'Floor B', 0, 0, 1),
+(276, 'L5', 'Study Pod', 'Study Room 1 - Capacity 4', 'Floor B', 0, 0, 1),
 (277, 'L8', '', 'Library Study Area', 'Floor B', 0, 0, 1),
 (278, 'L12', '', 'Library Study Area', 'Floor B', 0, 0, 1),
 (279, 'L11', '', 'Library Study Area', 'Floor B', 0, 0, 1),
 (280, 'L9', '', 'Library Study Area', 'Floor B', 0, 0, 1),
-(281, 'L7', '', 'Library Study Area', 'Floor B', 0, 0, 1),
+(281, 'L7', 'Group Meeting Room', 'Study Room 4 - Capacity 6', 'Floor B', 0, 0, 1),
 (282, 'B77', '', '', 'Floor B', 0, 0, 1),
 (283, 'B76', '', '', 'Floor B', 0, 0, 1),
-(284, 'L6', '', 'Library Study Area', 'Floor B', 0, 0, 1),
+(284, 'L6', 'Group Meeting Room', 'Study Room 3 - Capacity 6', 'Floor B', 0, 0, 1),
 (285, 'L18', '', 'Library Study Area', 'Floor B', 0, 0, 1),
 (286, 'L19', '', 'Library Study Area', 'Floor B', 0, 0, 1),
 (287, 'L19a', '', 'Library Study Area', 'Floor B', 0, 0, 1),
-(288, 'Library', '', 'Library Study Area', 'Floor B', 0, 0, 1),
+(288, 'Library', '', 'Library Area', 'Floor B', 0, 0, 1),
 (289, 'L2', '', 'Library Study Area', 'Floor B', 0, 0, 1),
-(290, 'L3', '', 'Library Study Area', 'Floor B', 0, 0, 1),
+(290, 'L3', 'Study Pod', 'Study Room 8 - Capacity 2', 'Floor B', 0, 0, 1),
 (291, 'L4', '', 'Library Study Area', 'Floor B', 0, 0, 1),
 (292, 'B3', '', '', 'Floor B', 0, 0, 1),
 (293, 'B5b', '', '', 'Floor B', 0, 0, 1),
@@ -431,18 +438,17 @@ INSERT INTO `room_info` (`room_id`, `room_name`, `room_type`, `description`, `fl
 (339, 'B13', '', '', 'Floor B', 0, 0, 1),
 (340, 'A7', '', '', 'Floor A', 0, 0, 1),
 (341, 'B59', '', '', 'Floor B', 0, 0, 1),
-(342, 'B60', '', '', 'Floor B', 0, 0, 1),
-(343, 'B62', '', '', 'Floor B', 0, 0, 1),
+(342, 'B60', 'SCEBE Locatiton', 'Laboratory - Power Lab - Capacity 25', 'Floor B', 0, 0, 1),
+(343, 'B62', 'SCEBE Location', 'Laboratory - Robotics Lab - Capacity 20', 'Floor B', 0, 0, 1),
 (344, 'B61', '', '', 'Floor B', 0, 0, 1),
 (345, 'B63', '', '', 'Floor B', 0, 0, 1),
 (346, 'B64', '', '', 'Floor B', 0, 0, 1),
-(347, 'B65', '', '', 'Floor B', 0, 0, 1),
+(347, 'B65', 'SCEBE Location', 'Laboratory - Timber Research - Capacity 10', 'Floor B', 0, 0, 1),
 (348, 'B66', '', '', 'Floor B', 0, 0, 1),
-(349, 'B68', '', '', 'Floor B', 0, 0, 1),
-(350, 'B68b', '', '', 'Floor B', 0, 0, 1),
-(351, 'B68a', '', '', 'Floor B', 0, 0, 1),
+(350, 'B68b', 'SCEBE Location', 'Laboratory - Capacity 16', 'Floor B', 0, 0, 1),
+(351, 'B68a', 'SCEBE Location', 'Laboratory - Capacity 20', 'Floor B', 0, 0, 1),
 (352, 'B14', '', '', 'Floor B', 0, 0, 1),
-(353, 'B15', '', '', 'Floor B', 0, 0, 1),
+(353, 'B15', 'SCEBE Location', 'Laboratory - Polymer Lab - Capacity 16', 'Floor B', 0, 0, 1),
 (354, 'B16', '', '', 'Floor B', 0, 0, 1),
 (355, 'B16a', '', '', 'Floor B', 0, 0, 1),
 (356, 'B17', '', '', 'Floor B', 0, 0, 1),
@@ -553,15 +559,15 @@ INSERT INTO `room_info` (`room_id`, `room_name`, `room_type`, `description`, `fl
 (464, 'D66', '', '', 'Floor D', 0, 0, 1),
 (465, 'D42', '', '', 'Floor D', 0, 0, 1),
 (466, 'D41', '', '', 'Floor D', 0, 0, 1),
-(467, 'D40', '', '', 'Floor D', 0, 0, 1),
-(468, 'D46a', '', '', 'Floor D', 0, 0, 1),
+(467, 'D40', 'SCEBE Location', 'SOC Lab', 'Floor D', 0, 0, 1),
+(468, 'D36', 'SCEBE Location', 'Studio Media Lab - Capacity 24', 'Floor D', 0, 0, 1),
 (469, 'D45', '', '', 'Floor D', 0, 0, 1),
 (470, 'D46', '', '', 'Floor D', 0, 0, 1),
 (471, 'D39', '', '', 'Floor D', 0, 0, 1),
-(472, 'D38', '', '', 'Floor D', 0, 0, 1),
+(472, 'D38', 'SCEBE Location', 'Audio Suite - Capacity 1', 'Floor D', 0, 0, 1),
 (473, 'D37', '', '', 'Floor D', 0, 0, 1),
-(474, 'D35', '', '', 'Floor D', 0, 0, 1),
-(475, 'D33', '', '', 'Floor D', 0, 0, 1),
+(474, 'D35', 'SCEBE Location', 'Studio Video Suite - Capacity 24', 'Floor D', 0, 0, 1),
+(475, 'D33', 'SCEBE Location', 'Green Screen Room - Capacity 6', 'Floor D', 0, 0, 1),
 (476, 'D32', '', '', 'Floor D', 0, 0, 1),
 (477, 'D31', '', '', 'Floor D', 0, 0, 1),
 (478, 'D30', '', '', 'Floor D', 0, 0, 1),
@@ -576,7 +582,7 @@ INSERT INTO `room_info` (`room_id`, `room_name`, `room_type`, `description`, `fl
 (487, 'D17', '', '', 'Floor D', 0, 0, 1),
 (488, 'D9', '', '', 'Floor D', 0, 0, 1),
 (489, 'D7', '', '', 'Floor D', 0, 0, 1),
-(490, 'D2', '', '', 'Floor D', 0, 0, 1),
+(490, 'D2', 'SCEBE Location', 'Code Lab - Capacity 40', 'Floor D', 0, 0, 1),
 (491, 'D1', '', '', 'Floor D', 0, 0, 1),
 (492, 'D74', '', '', 'Floor D', 0, 0, 1),
 (493, 'D8', '', '', 'Floor D', 0, 0, 1),
@@ -594,8 +600,8 @@ INSERT INTO `room_info` (`room_id`, `room_name`, `room_type`, `description`, `fl
 (505, 'D70', '', '', 'Floor D', 0, 0, 1),
 (506, 'D71', '', '', 'Floor D', 0, 0, 1),
 (507, 'D72', '', '', 'Floor D', 0, 0, 1),
-(508, 'D47a', '', '', 'Floor D', 0, 0, 1),
-(509, 'D47b', '', '', 'Floor D', 0, 0, 1),
+(508, 'D47a', 'SCEBE Location', 'Robot Lab - Capacity 1', 'Floor D', 0, 0, 1),
+(509, 'D47b', 'SCEBE Location', 'Robot Lab - Capacity 1', 'Floor D', 0, 0, 1),
 (510, 'D73', '', '', 'Floor D', 0, 0, 1),
 (511, 'D65a', '', '', 'Floor D', 0, 0, 1),
 (512, 'D14', '', '', 'Floor D', 0, 0, 1),
@@ -665,10 +671,10 @@ INSERT INTO `room_info` (`room_id`, `room_name`, `room_type`, `description`, `fl
 (576, 'E55', '', '', 'Floor E', 0, 0, 1),
 (577, 'E56', '', '', 'Floor E', 0, 0, 1),
 (578, 'E33', '', '', 'Floor E', 0, 0, 1),
-(579, 'E32', '', '', 'Floor E', 0, 0, 1),
+(579, 'E32', 'SCEBE Location', 'Computer Room - Computer Lab - Capacity 32', 'Floor E', 0, 0, 1),
 (580, 'E31', '', '', 'Floor E', 0, 0, 1),
-(581, 'E28', '', '', 'Floor E', 0, 0, 1),
-(582, 'E27', '', '', 'Floor E', 0, 0, 1),
+(581, 'E28', 'SCEBE Location', 'Laboratory - Product Design Engineering - Capacity 25', 'Floor E', 0, 0, 1),
+(582, 'E27', 'SCEBE Location', 'Laboratory - Architectural Technology Lab - Capacity 40', 'Floor E', 0, 0, 1),
 (583, 'E25', '', '', 'Floor E', 0, 0, 1),
 (584, 'E24', '', '', 'Floor E', 0, 0, 1),
 (585, 'E23', '', '', 'Floor E', 0, 0, 1),
@@ -770,7 +776,12 @@ INSERT INTO `room_info` (`room_id`, `room_name`, `room_type`, `description`, `fl
 (681, 'Stairs2', 'Stairs', 'Stairs', 'Floor H', 0, 0, 1),
 (682, 'Stairs', 'Stairs', 'Stairs', 'Floor H', 0, 0, 1),
 (683, 'Elevator1', 'Elevator', 'Elevator', 'Floor H', 0, 0, 1),
-(684, 'Elevator2', 'Elevator', 'Elevator', 'Floor H', 0, 0, 1);
+(684, 'Elevator2', 'Elevator', 'Elevator', 'Floor H', 0, 0, 1),
+(687, 'B69', 'SCEBE Location', 'Studio - Design Studio - Capacity 20', 'Floor B', 0, 0, 1),
+(688, 'C24', '', NULL, 'Floor C', 0, 0, 1),
+(689, 'C27', 'SCEBE Location', 'Computer Networking Lab - Capacity 50', 'Floor C', 0, 0, 1),
+(690, 'C28', 'SCEBE Location', 'Computer Room - Computing Interactions Lab - Capacity 24', 'Floor C', 0, 0, 1),
+(691, 'C21a', 'SCEBE Location', 'C21a', 'Floor C', 0, 0, 1);
 
 --
 -- Indexes for dumped tables
@@ -823,13 +834,13 @@ ALTER TABLE `class_schedule_info`
 -- AUTO_INCREMENT for table `rooms_booking_info`
 --
 ALTER TABLE `rooms_booking_info`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `room_info`
 --
 ALTER TABLE `room_info`
-  MODIFY `room_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=685;
+  MODIFY `room_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=692;
 
 --
 -- Constraints for dumped tables
