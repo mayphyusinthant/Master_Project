@@ -6,11 +6,12 @@ import {
   CardContent,
   Grid2,
   Button,
+  Box,
 } from '@mui/material';
 import map from '../assets/Floors/FLOOR B.svg';
-import { useState } from 'react';
 import { locations } from '../data/locations';
-import Map from '../components/Map';
+import Map from '../components/InteractiveMap';
+import { useState, useEffect } from 'react';
 
 import floorA from '../assets/Floors/FLOOR A.svg';
 import floorB from '../assets/Floors/FLOOR B.svg';
@@ -32,18 +33,106 @@ const floorMaps = {
   G: floorG,
   H: floorH,
 };
-// Import room data
 
 export const PlanInfo = () => {
   const [selectedType, setSelectedType] = useState('');
   const [selectedRoom, setSelectedRoom] = useState(null); // Store full room object
   const [selectedFloor, setSelectedFloor] = useState('A');
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [fullRoomData, setFullRoomData] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [floorRooms, setFloorRooms] = useState([]); // Rooms for current floor
 
-  // Get unique room types from locations.js
-  const roomTypes = [...new Set(locations.map((room) => room.type))];
+  // Fetch room types on component mount
+  useEffect(() => {
+    setIsLoading(true);
+    fetch('http://localhost:5000/api/all_room_types')
+      .then((response) => response.json())
+      .then((data) => {
+        // Extract just the type values from the array of objects
+        const typeValues = data.map(item => item.type);
+        setRoomTypes(typeValues);
+        console.log("Room Types:", typeValues);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching rooms:', error);
+        setIsLoading(false);
+      });
+  }, []);
 
-  // Filter rooms based on selected type
-  const filteredRooms = selectedType ? locations.filter((room) => room.type === selectedType) : [];
+  // Fetch rooms when room type changes
+  useEffect(() => {
+    const params = new URLSearchParams({
+      roomType: selectedType,
+    });
+    
+    if (selectedType) {
+      setIsLoading(true);
+      
+      const url = `http://localhost:5000/api/available_rooms?${params}`;
+      
+      console.log("Fetching from URL:", url);
+      
+      fetch(url)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          // Extract room values from the response
+          const roomValues = data.map(item => item.roomName);
+          setRooms(roomValues);
+          
+          // Store the full room objects for later use
+          setFullRoomData(data);
+          
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching rooms:', error);
+          setIsLoading(false);
+        });
+    } else {
+      console.log("No room type selected yet");
+    }
+  }, [selectedType]);
+
+  // Fetch all rooms for map functionality
+  useEffect(() => {
+    fetch('http://localhost:5000/api/available_rooms')
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("All rooms data:", data);
+        // Filter rooms based on the selected floor when floor changes
+        setFullRoomData(data);
+
+        updateFloorRooms(data, selectedFloor);
+      })
+      .catch((error) => {
+        console.error('Error fetching all rooms:', error);
+      });
+  }, []);
+
+  // Update floor rooms when selected floor changes
+  useEffect(() => {
+    if (fullRoomData.length > 0) {
+      updateFloorRooms(fullRoomData, selectedFloor);
+    }
+  }, [selectedFloor, fullRoomData]);
+
+  // Filter rooms for the current floor
+  const updateFloorRooms = (allRooms, floor) => {
+    const roomsOnFloor = allRooms.filter(room => 
+      room.floor === floor || 
+      (room.floor && room.floor.toUpperCase() === floor)
+    );
+    setFloorRooms(roomsOnFloor);
+    console.log(`Rooms on floor ${floor}:`, roomsOnFloor);
+  };
 
   return (
     <Grid2 container spacing={4} justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
@@ -52,7 +141,6 @@ export const PlanInfo = () => {
         item
         xs={12}
         justifyContent="center"
-        // alignItems="center"
         md={5}
         display="flex"
         flexDirection="column"
@@ -71,49 +159,95 @@ export const PlanInfo = () => {
           )}
         />
 
+        {/* Room Selection */}
         <Autocomplete
-          options={filteredRooms}
-          getOptionLabel={(option) => option.roomId} // Show room ID as label
+          options={fullRoomData || []}
+          getOptionLabel={(option) =>
+            typeof option === 'string'
+              ? option
+              : `${option.roomName} (${option.floor})`
+          }
           value={selectedRoom}
-          sx={{ width: 250 }}
-          onChange={(event, newValue) => setSelectedRoom(newValue)} // Store full room object
+          onChange={(event, newValue) => {
+            setSelectedRoom(newValue);
+            // If a room is selected, also set the floor to match that room
+            if (newValue && newValue.floor) {
+              setSelectedFloor(newValue.floor.toUpperCase());
+            }
+          }}
           renderInput={(params) => (
-            <TextField {...params} label="Select Room Number" variant="outlined" />
+            <TextField 
+              {...params} 
+              label="Select Room" 
+              variant="outlined"
+              helperText={isLoading ? "Loading available rooms..." : ""}
+            />
           )}
-          disabled={!selectedType} // Disable if no type is selected
+          sx={{ width: 350 }}
+          loading={isLoading}
         />
       </Grid2>
+
       <Grid2 item xs={12} md={8}>
         <Card sx={{ p: 1, width: 400 }}>
           <CardContent>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              {selectedRoom?.roomId} - {selectedRoom?.type}
-            </Typography>
-            <Typography variant="body1" sx={{ mt: 0 }}>
-              {selectedRoom?.description}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0 }}>
-              <strong>Responsible Person:</strong> {selectedRoom?.responsiblePerson}
-            </Typography>
+            {selectedRoom !== null && (
+              <>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0 }}>
+                  <strong>Description:</strong> {selectedRoom?.responsiblePerson}
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                  {selectedRoom?.roomId} - {selectedRoom?.type}
+                </Typography>
+                <Typography variant="body1" sx={{ mt: 0 }}>
+                  {selectedRoom?.description}
+                </Typography>
+              </>
+            )}
           </CardContent>
         </Card>
       </Grid2>
-      <Grid2 item xs={12} display="flex" justifyContent="center" gap={1} flexWrap="wrap">
-        {Object.keys(floorMaps).map((floor) => (
-          <Button
-            key={floor}
-            variant={selectedFloor === floor ? 'contained' : 'outlined'}
-            onClick={() => setSelectedFloor(floor)}
+      
+      <Grid2 item xs={12} sx={{ width: '100%' }}>
+        <Box
+          sx={{
+            width: '100%', 
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          {/* Floor Buttons Row */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 1,
+              flexWrap: 'wrap',
+              mb: 2,
+              width: '100%'
+            }}
           >
-            {floor}
-          </Button>
-        ))}
+            {Object.keys(floorMaps).map((floor) => (
+              <Button
+                key={floor}
+                variant={selectedFloor === floor ? 'contained' : 'outlined'}
+                onClick={() => setSelectedFloor(floor)}
+              >
+                {floor}
+              </Button>
+            ))}
+          </Box>
+          
+          {/* Map Component - Full width */}
+          <Box sx={{ width: '100%' }}>
+            <Map 
+              map={floorMaps[selectedFloor]} 
+              roomData={fullRoomData} 
+            />
+          </Box>
+        </Box>
       </Grid2>
-
-      {/* Right Side - Selection Fields */}
-
-      {/* Full Width Image */}
-      <Map zoom={3} map={floorMaps[selectedFloor]} />
     </Grid2>
   );
 };
