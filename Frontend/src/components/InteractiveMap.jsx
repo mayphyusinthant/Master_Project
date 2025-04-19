@@ -18,7 +18,7 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
   },
 }));
 
-function InteractiveMap({ map, roomData = [] }) {
+function InteractiveMap({ map, roomData = [] , setSelectedRoom, setSelectedType, setDescription}) {
   const containerRef = useRef();
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [tooltipContent, setTooltipContent] = useState('');
@@ -96,11 +96,14 @@ function InteractiveMap({ map, roomData = [] }) {
               ${matchedRoom.floor || 'N/A'}<br><br>
               ${matchedRoom.description ? `<strong>Description</strong><br>${matchedRoom.description}` : ''}
             `;
+            setSelectedRoom(matchedRoom.roomName + " (" + matchedRoom.floor + ")");
+            setSelectedType("All")
+            setDescription(matchedRoom.description)
+
           } else {
             // Default text if no match found
             content = `<strong>${id || 'Room'}</strong>`;
           }
-          
           // Apply highlighting to the element or its parent g if available
           const elementToHighlight = this.tagName === 'g' ? 
             d3.select(this) : 

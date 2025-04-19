@@ -8,8 +8,6 @@ import {
   Button,
   Box,
 } from '@mui/material';
-import map from '../assets/Floors/FLOOR B.svg';
-import { locations } from '../data/locations';
 import Map from '../components/InteractiveMap';
 import { useState, useEffect } from 'react';
 
@@ -36,14 +34,14 @@ const floorMaps = {
 
 export const PlanInfo = () => {
   const [selectedType, setSelectedType] = useState('');
-  const [selectedRoom, setSelectedRoom] = useState(null); // Store full room object
+  const [selectedRoom, setSelectedRoom] = useState(null); 
   const [selectedFloor, setSelectedFloor] = useState('A');
   const [roomTypes, setRoomTypes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fullRoomData, setFullRoomData] = useState([]);
   const [rooms, setRooms] = useState([]);
-  const [floorRooms, setFloorRooms] = useState([]); // Rooms for current floor
-
+  const [floorRooms, setFloorRooms] = useState([]); 
+  const [ description, setDescription ] = useState('');
   // Fetch room types on component mount
   useEffect(() => {
     setIsLoading(true);
@@ -187,27 +185,29 @@ export const PlanInfo = () => {
           loading={isLoading}
         />
       </Grid2>
-
+        
       <Grid2 item xs={12} md={8}>
         <Card sx={{ p: 1, width: 400 }}>
           <CardContent>
-            {selectedRoom !== null && (
+            {selectedRoom ? (
               <>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 0 }}>
-                  <strong>Description:</strong> {selectedRoom?.responsiblePerson}
-                </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                  {selectedRoom?.roomId} - {selectedRoom?.type}
+                  {selectedRoom}
                 </Typography>
-                <Typography variant="body1" sx={{ mt: 0 }}>
-                  {selectedRoom?.description}
+                <Typography variant="body1" sx={{ mt: 1 }}>
+                  {description || "No description available"}
                 </Typography>
+               
               </>
+            ) : (
+              <Typography variant="body1">
+                Hover over a room on the map or select a room to view details.
+              </Typography>
             )}
           </CardContent>
         </Card>
       </Grid2>
-      
+            
       <Grid2 item xs={12} sx={{ width: '100%' }}>
         <Box
           sx={{
@@ -244,6 +244,9 @@ export const PlanInfo = () => {
             <Map 
               map={floorMaps[selectedFloor]} 
               roomData={fullRoomData} 
+              setSelectedRoom={setSelectedRoom}
+              setSelectedType={setSelectedType}
+              setDescription={setDescription}
             />
           </Box>
         </Box>
