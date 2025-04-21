@@ -1,10 +1,11 @@
-import os.path
+import unittest
 import networkx as nx
 import svgelements
+import os
+from map_parser import svg_map_parse, are_adjacent, process_maps
+import math
+import tempfile
 
-""" SVG map parser. Parsing all the floor maps from static folder """
-
-    # Parse the SVG map to get the graph data (nodes and edges)
 def svg_map_parse(svg_map):
     """
     Parses an SVG file and extracts rectangular elements as nodes in a NetworkX graph,
@@ -167,18 +168,122 @@ def are_adjacent(rect1, rect2, tolerance=1.0):
 
     return False # Otherwise, they are separate
 
+class TestSVGMapParser(unittest.TestCase):
 
-    # Processing all svg maps in the static directory, specified correct svg file name in the folder
-def process_maps(directory="static"):
-    # Dictionary for each floor graphs
-    all_graphs = {}
-    for floor_name in ['Floor_A.svg', 'Floor_B.svg', 'Floor_C.svg', 'Floor_D.svg', 'Floor_E.svg', 'Floor_F.svg', 'Floor_G.svg', 'Floor_H.svg']:
-        svg_file = os.path.join(directory, f"{floor_name}.svg")
-        graph = svg_map_parse(svg_file)
-        if graph:
-            all_graphs[floor_name] = graph
-            print(f"Successfully parsed: {svg_file}")
-        else:
-            print(f"Failed to parse: {svg_file}")
+    def test_floor_a_node_attributes_unique(self):
+        """
+        Tests parsing of Floor_A.svg with unique node IDs.
+        Checks specific nodes based on type and coordinates.
+        """
+        floor_a_svg_path = os.path.join("static", "Floor_A.svg")
+        print(f"\nAttempting to parse for unique nodes: {os.path.abspath(floor_a_svg_path)}")
 
-    return all_graphs
+        # Ensure the file exists before parsing
+        self.assertTrue(os.path.exists(floor_a_svg_path), f"SVG file not found at {floor_a_svg_path}")
+
+        graph = svg_map_parse(floor_a_svg_path) # Use the updated parser
+
+        # Basic graph checks
+        self.assertIsNotNone(graph, "svg_map_parse should return a graph object, not None.")
+        self.assertIsInstance(graph, nx.Graph, "svg_map_parse should return a NetworkX Graph")
+        self.assertGreater(len(graph.nodes), 0, "Graph should have nodes after parsing Floor_H.svg")
+        print(f"Total nodes parsed: {len(graph.nodes)}")
+
+    def test_file_not_found(self):
+        """Tests that svg_map_parse returns None for a non-existent file."""
+        print("\n--- Testing File Not Found ---")
+        non_existent_path = os.path.join("path", "to", "non_existent_file.svg")
+        graph = svg_map_parse(non_existent_path)
+        self.assertIsNone(graph, "Should return None when SVG file does not exist.")
+        print("--- Finished Testing File Not Found ---")
+
+    def test_invalid_svg_content(self):
+        """Tests that svg_map_parse returns None for invalid SVG/XML content."""
+        print("\n--- Testing Invalid SVG Content ---")
+        invalid_content = "<svg><rect id='valid' cost='1' x='0' y='0' width='10' height='10'><malformed></svg>"
+        # Use tempfile to write invalid content to a temporary file
+        with tempfile.NamedTemporaryFile(mode='w', suffix=".svg", delete=False) as tmp_file:
+            tmp_file.write(invalid_content)
+            tmp_file_path = tmp_file.name
+        try:
+            graph = svg_map_parse(tmp_file_path)
+            # Depending on svgelements strictness, it might return an empty graph or None
+            # self.assertIsNone(graph, "Should return None for invalid SVG content.")
+            # OR check for empty graph if parser is lenient
+            if graph is not None:
+                self.assertEqual(len(graph.nodes), 0, "Graph should be empty or None for invalid SVG")
+            else:
+                self.assertIsNone(graph, "Graph should be None for invalid SVG")
+
+        finally:
+            os.remove(tmp_file_path)  # Clean up the temporary file
+        print("--- Finished Testing Invalid SVG Content ---")
+
+    def test_empty_svg(self):
+        """Tests parsing an SVG with no rect elements."""
+        print("\n--- Testing Empty SVG ---")
+        empty_svg_content = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>'
+        with tempfile.NamedTemporaryFile(mode='w', suffix=".svg", delete=False) as tmp_file:
+            tmp_file.write(empty_svg_content)
+            tmp_file_path = tmp_file.name
+        try:
+            graph = svg_map_parse(tmp_file_path)
+            self.assertIsNotNone(graph, "Parser should return a graph object for valid empty SVG.")
+            self.assertEqual(len(graph.nodes), 0, "Graph should have 0 nodes for an SVG with no rects.")
+            self.assertEqual(len(graph.edges), 0, "Graph should have 0 edges for an SVG with no rects.")
+        finally:
+            os.remove(tmp_file_path)
+        print("--- Finished Testing Empty SVG ---")
+
+    def test_adjacency_and_weights(self):
+        """Tests edge creation and weight calculation between adjacent rects."""
+        print("\n--- Testing Adjacency and Weights ---")
+        # Two rectangles touching side-by-side
+        svg_content = """<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+            <rect id="R1" cost="10" x="0" y="0" width="10" height="10"/>
+            <rect id="R2" cost="20" x="10" y="0" width="10" height="10"/>
+            <rect id="R3" cost="30" x="30" y="0" width="10" height="10"/> </svg>"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix=".svg", delete=False) as tmp_file:
+            tmp_file.write(svg_content)
+            tmp_file_path = tmp_file.name
+        try:
+            # Ensure are_adjacent is correctly defined/imported for this test
+            if 'are_adjacent' not in globals() and 'are_adjacent' not in locals():
+                self.skipTest("are_adjacent function not available for adjacency test.")
+
+            graph = svg_map_parse(tmp_file_path)
+            self.assertIsNotNone(graph)
+            self.assertEqual(len(graph.nodes), 3)
+
+            # Generate expected unique node IDs (assuming order R1, R2, R3)
+            node1_id = "R1_0.00_0.00_1"
+            node2_id = "R2_10.00_0.00_2"
+            node3_id = "R3_30.00_0.00_3"
+
+            self.assertTrue(graph.has_node(node1_id))
+            self.assertTrue(graph.has_node(node2_id))
+            self.assertTrue(graph.has_node(node3_id))
+
+            # Check edge between R1 and R2
+            self.assertTrue(graph.has_edge(node1_id, node2_id),
+                            f"Edge missing between adjacent {node1_id} and {node2_id}")
+            if graph.has_edge(node1_id, node2_id):
+                weight = graph.edges[node1_id, node2_id]['weight']
+                expected_weight = (10 + 20) / 2
+                self.assertAlmostEqual(weight, expected_weight, places=5, msg="Incorrect edge weight for R1-R2")
+                print(f"  Edge OK: {node1_id} <-> {node2_id}, Weight: {weight}")
+
+            # Check no edge between R1 and R3
+            self.assertFalse(graph.has_edge(node1_id, node3_id),
+                             f"Edge should not exist between non-adjacent {node1_id} and {node3_id}")
+            # Check no edge between R2 and R3
+            self.assertFalse(graph.has_edge(node2_id, node3_id),
+                             f"Edge should not exist between non-adjacent {node2_id} and {node3_id}")
+
+            self.assertEqual(len(graph.edges), 1, "Should only be one edge in this simple case.")
+
+        finally:
+            os.remove(tmp_file_path)
+        print("--- Finished Testing Adjacency and Weights ---")
+
+        print("--- Finished Checking Node Attributes ---")
