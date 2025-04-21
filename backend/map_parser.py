@@ -85,7 +85,6 @@ def svg_map_parse(svg_map):
     print(f"--- Finished parsing {os.path.basename(svg_map)} ---")
 
     # --- Adjacency Logic (Uses are_adjacent function) ---
-    print("--- Calculating Adjacency ---")
     edge_count = 0
     # Check if are_adjacent is defined before calling it
     if 'are_adjacent' in globals() or 'are_adjacent' in locals():

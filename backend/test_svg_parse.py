@@ -1,7 +1,6 @@
 import unittest
 from io import StringIO
 from unittest.mock import patch
-
 import networkx as nx
 import svgelements
 import os
