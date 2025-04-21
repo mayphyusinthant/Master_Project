@@ -1,7 +1,7 @@
 import React from 'react';
 import Map from '../components/Map';
 import { PageTitle } from '../components/pageTitle';
-import map from '../assets/Floors/FLOOR B.svg';
+import map from '../assets/Floors/FLOOR_B.svg';
 import {
   Box,
   Button,
