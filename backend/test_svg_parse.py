@@ -6,19 +6,8 @@ from map_parser import svg_map_parse, are_adjacent, process_maps
 import math
 import tempfile
 
+""" Main code from map_parser """
 def svg_map_parse(svg_map):
-    """
-    Parses an SVG file and extracts rectangular elements as nodes in a NetworkX graph,
-    connecting adjacent rectangles with edges.
-
-    Args:
-        svg_map (str): The path to the SVG file.
-
-    Returns:
-        networkx.Graph: A NetworkX graph representing the map, or None on error.
-                        Nodes are rectangles with their attributes, and edges connect
-                        adjacent rectangles with a weight equal to the average cost.
-    """
     graph = nx.Graph()
     nodes = {}
     rects = []  # For adjacency check
@@ -120,18 +109,9 @@ def svg_map_parse(svg_map):
 
     return graph
 
+""" Check if two rects are adjacent (overlapping or touching sides within tolerance). """
 def are_adjacent(rect1, rect2, tolerance=1.0):
-    """
-    Checks if two rectangles are adjacent (overlapping or touching sides within tolerance).
 
-    Args:
-        rect1 (dict): Dictionary representing the first rectangle {'x', 'y', 'width', 'height'}.
-        rect2 (dict): Dictionary representing the second rectangle {'x', 'y', 'width', 'height'}.
-        tolerance (float): Allowed gap or overlap to consider as touching.
-
-    Returns:
-        bool: True if the rectangles are adjacent, False otherwise.
-    """
     # Calculate the boundaries of the rectangles
     left1, right1 = rect1['x'], rect1['x'] + rect1['width']
     top1, bottom1 = rect1['y'], rect1['y'] + rect1['height']
@@ -139,7 +119,6 @@ def are_adjacent(rect1, rect2, tolerance=1.0):
     top2, bottom2 = rect2['y'], rect2['y'] + rect2['height']
 
     # Check if bounding boxes (expanded by tolerance) intersect
-    # This is a necessary condition for adjacency.
     x_overlap_possible = (left1 < right2 + tolerance) and (right1 + tolerance > left2)
     y_overlap_possible = (top1 < bottom2 + tolerance) and (bottom1 + tolerance > top2)
 
@@ -163,13 +142,12 @@ def are_adjacent(rect1, rect2, tolerance=1.0):
     if touching_along_x or touching_along_y:
         return True # They touch along a side
 
-    # Optional: Consider corner touching? Usually not desired for pathfinding grids.
-    # If needed, add condition like: abs(dx) < tolerance and abs(dy) < tolerance
-
     return False # Otherwise, they are separate
 
+""" UNIT TESTS BEGIN """
 class TestSVGMapParser(unittest.TestCase):
 
+    """ TEST #1 """
     def test_floor_a_node_attributes_unique(self):
         """
         Tests parsing of Floor_A.svg with unique node IDs.
@@ -186,9 +164,10 @@ class TestSVGMapParser(unittest.TestCase):
         # Basic graph checks
         self.assertIsNotNone(graph, "svg_map_parse should return a graph object, not None.")
         self.assertIsInstance(graph, nx.Graph, "svg_map_parse should return a NetworkX Graph")
-        self.assertGreater(len(graph.nodes), 0, "Graph should have nodes after parsing Floor_H.svg")
+        self.assertGreater(len(graph.nodes), 0, "Graph should have nodes after parsing Floor_A.svg")
         print(f"Total nodes parsed: {len(graph.nodes)}")
 
+    """ TEST #2 """
     def test_file_not_found(self):
         """Tests that svg_map_parse returns None for a non-existent file."""
         print("\n--- Testing File Not Found ---")
@@ -197,6 +176,7 @@ class TestSVGMapParser(unittest.TestCase):
         self.assertIsNone(graph, "Should return None when SVG file does not exist.")
         print("--- Finished Testing File Not Found ---")
 
+    """ TEST #3 """
     def test_invalid_svg_content(self):
         """Tests that svg_map_parse returns None for invalid SVG/XML content."""
         print("\n--- Testing Invalid SVG Content ---")
@@ -207,9 +187,8 @@ class TestSVGMapParser(unittest.TestCase):
             tmp_file_path = tmp_file.name
         try:
             graph = svg_map_parse(tmp_file_path)
-            # Depending on svgelements strictness, it might return an empty graph or None
-            # self.assertIsNone(graph, "Should return None for invalid SVG content.")
-            # OR check for empty graph if parser is lenient
+
+            # Check for empty graph
             if graph is not None:
                 self.assertEqual(len(graph.nodes), 0, "Graph should be empty or None for invalid SVG")
             else:
@@ -219,6 +198,7 @@ class TestSVGMapParser(unittest.TestCase):
             os.remove(tmp_file_path)  # Clean up the temporary file
         print("--- Finished Testing Invalid SVG Content ---")
 
+    """ TEST #4 """
     def test_empty_svg(self):
         """Tests parsing an SVG with no rect elements."""
         print("\n--- Testing Empty SVG ---")
@@ -230,15 +210,16 @@ class TestSVGMapParser(unittest.TestCase):
             graph = svg_map_parse(tmp_file_path)
             self.assertIsNotNone(graph, "Parser should return a graph object for valid empty SVG.")
             self.assertEqual(len(graph.nodes), 0, "Graph should have 0 nodes for an SVG with no rects.")
-            self.assertEqual(len(graph.edges), 0, "Graph should have 0 edges for an SVG with no rects.")
         finally:
             os.remove(tmp_file_path)
         print("--- Finished Testing Empty SVG ---")
 
+    """ TEST #5 """
     def test_adjacency_and_weights(self):
         """Tests edge creation and weight calculation between adjacent rects."""
         print("\n--- Testing Adjacency and Weights ---")
         # Two rectangles touching side-by-side
+        # Dummy data
         svg_content = """<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
             <rect id="R1" cost="10" x="0" y="0" width="10" height="10"/>
             <rect id="R2" cost="20" x="10" y="0" width="10" height="10"/>
