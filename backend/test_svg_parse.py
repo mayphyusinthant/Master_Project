@@ -1,12 +1,14 @@
 import unittest
+from io import StringIO
+from unittest.mock import patch
+
 import networkx as nx
 import svgelements
 import os
 from map_parser import svg_map_parse, are_adjacent, process_maps
-import math
 import tempfile
 
-""" Main code from map_parser """
+""" Single map parse """
 def svg_map_parse(svg_map):
     graph = nx.Graph()
     nodes = {}
@@ -108,6 +110,29 @@ def svg_map_parse(svg_map):
     print(f"--- Finished Adjacency. Added {edge_count} edges. ---")
 
     return graph
+
+""" Parse all maps """
+def process_maps(directory="static"):
+    # Dictionary for each floor graphs
+    all_graphs = {}
+    # Define floor names explicitly
+    floor_names = ['Floor_A.svg', 'Floor_B.svg', 'Floor_C.svg', 'Floor_D.svg',
+                   'Floor_E.svg', 'Floor_F.svg', 'Floor_G.svg', 'Floor_H.svg']
+    print(f"\n--- Processing Maps in Directory: {directory} ---")  # Added print
+    for floor_name in floor_names:
+        # Construct full path to the SVG file
+        svg_file = os.path.join(directory, floor_name)  # Corrected: use floor_name directly
+        # Call svg_map_parse for each file
+        graph = svg_map_parse(svg_file)
+        # Check if parsing was successful (graph is not None)
+        if graph is not None:  # Check specifically for None, as empty graph is valid
+            all_graphs[floor_name] = graph
+            print(f"Successfully parsed: {svg_file}")
+        else:
+            # Print failure message if graph is None
+            print(f"Failed to parse: {svg_file}")
+    print(f"--- Finished Processing Maps. Parsed {len(all_graphs)} graphs. ---")  # Added print
+    return all_graphs
 
 """ Check if two rects are adjacent (overlapping or touching sides within tolerance). """
 def are_adjacent(rect1, rect2, tolerance=1.0):
@@ -268,3 +293,116 @@ class TestSVGMapParser(unittest.TestCase):
         print("--- Finished Testing Adjacency and Weights ---")
 
         print("--- Finished Checking Node Attributes ---")
+
+    """ Process_maps tests start here"""
+    """ TEST #6 """
+    def test_process_maps_success(self):
+        """Tests process_maps with a directory containing all valid SVG files."""
+        print("\n--- Testing process_maps Success ---")
+        # Ensure process_maps is available
+        if 'process_maps' not in globals() and 'process_maps' not in locals():
+            self.fail("process_maps function is not defined or imported for the test.")
+
+        valid_svg_content = '<svg><rect id="dummy" cost="1" x="0" y="0" width="1" height="1"/></svg>'
+        floor_names = ['Floor_A.svg', 'Floor_B.svg', 'Floor_C.svg', 'Floor_D.svg',
+                       'Floor_E.svg', 'Floor_F.svg', 'Floor_G.svg', 'Floor_H.svg']
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            print(f"  Created temp directory: {tmpdir}")
+            for fname in floor_names:
+                fpath = os.path.join(tmpdir, fname)
+                with open(fpath, 'w', encoding='utf-8') as f:
+                    f.write(valid_svg_content)
+
+            # Capture print output to verify success/failure messages
+            with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+                all_graphs = process_maps(directory=tmpdir)
+                output = mock_stdout.getvalue()  # Get printed output
+
+            self.assertIsInstance(all_graphs, dict, "process_maps should return a dictionary.")
+            self.assertEqual(len(all_graphs), len(floor_names), "Dictionary should have an entry for each valid file.")
+            print(f"  Parsed {len(all_graphs)} graphs.")
+
+            for fname in floor_names:
+                self.assertIn(fname, all_graphs, f"Key '{fname}' should be in the returned dictionary.")
+                self.assertIsInstance(all_graphs[fname], nx.Graph, f"Value for '{fname}' should be a NetworkX Graph.")
+                # Check that graph is not None and has nodes (since dummy SVG is valid)
+                self.assertIsNotNone(all_graphs[fname], f"Graph for '{fname}' should not be None.")
+                self.assertGreater(len(all_graphs[fname].nodes), 0, f"Graph for '{fname}' should not be empty.")
+                # Check print output for success message
+                expected_msg = f"Successfully parsed: {os.path.join(tmpdir, fname)}"
+                self.assertIn(expected_msg, output, f"Expected success message not found for {fname}")
+                print(f"  Verified graph for {fname}")
+
+        print("--- Finished Testing process_maps Success ---")
+
+    """ Test #7 """
+    def test_process_maps_partial_failure(self):
+        """Tests process_maps with some valid, some missing, some invalid files."""
+        print("\n--- Testing process_maps Partial Failure ---")
+        # Ensure process_maps is available
+        if 'process_maps' not in globals() and 'process_maps' not in locals():
+            self.fail("process_maps function is not defined or imported for the test.")
+
+        valid_svg_content = '<svg><rect id="dummy" cost="1" x="0" y="0" width="1" height="1"/></svg>'
+        invalid_svg_content = '<svg><invalid></svg>'
+        files_to_create = ['Floor_A.svg', 'Floor_C.svg', 'Floor_H.svg']
+        files_to_make_invalid = ['Floor_B.svg']
+        expected_success = files_to_create
+        expected_failure = ['Floor_B.svg', 'Floor_D.svg', 'Floor_E.svg', 'Floor_F.svg', 'Floor_G.svg']
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            print(f"  Created temp directory: {tmpdir}")
+            for fname in files_to_create:
+                with open(os.path.join(tmpdir, fname), 'w', encoding='utf-8') as f: f.write(valid_svg_content)
+            for fname in files_to_make_invalid:
+                with open(os.path.join(tmpdir, fname), 'w', encoding='utf-8') as f: f.write(invalid_svg_content)
+
+            with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+                all_graphs = process_maps(directory=tmpdir)
+                output = mock_stdout.getvalue()
+
+            self.assertIsInstance(all_graphs, dict)
+            self.assertEqual(len(all_graphs), len(expected_success),
+                             f"Expected {len(expected_success)} graphs, got {len(all_graphs)}.")
+            print(f"  Parsed {len(all_graphs)} graphs (expected {len(expected_success)}).")
+
+            for fname in expected_success:
+                self.assertIn(fname, all_graphs)
+                self.assertIsInstance(all_graphs[fname], nx.Graph)
+                self.assertGreater(len(all_graphs[fname].nodes), 0)
+                self.assertIn(f"Successfully parsed: {os.path.join(tmpdir, fname)}", output)
+                print(f"  Verified graph for {fname}")
+
+            for fname in expected_failure:
+                self.assertNotIn(fname, all_graphs)
+                self.assertIn(f"Failed to parse: {os.path.join(tmpdir, fname)}", output)
+                print(f"  Verified failure message for {fname}")
+
+        print("--- Finished Testing process_maps Partial Failure ---")
+
+    """ Test #8 """
+    def test_process_maps_directory_not_found(self):
+        """Tests process_maps with a non-existent directory."""
+        print("\n--- Testing process_maps Directory Not Found ---")
+        # Ensure process_maps is available
+        if 'process_maps' not in globals() and 'process_maps' not in locals():
+            self.fail("process_maps function is not defined or imported for the test.")
+
+        non_existent_dir = os.path.join("path", "that", "does", "not", "exist")
+
+        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            all_graphs = process_maps(directory=non_existent_dir)
+            output = mock_stdout.getvalue()
+
+        self.assertIsInstance(all_graphs, dict)
+        self.assertEqual(len(all_graphs), 0, "Should return an empty dictionary if directory doesn't exist.")
+        print(f"  Returned dictionary empty as expected.")
+
+        floor_names = ['Floor_A.svg', 'Floor_B.svg', 'Floor_C.svg', 'Floor_D.svg',
+                       'Floor_E.svg', 'Floor_F.svg', 'Floor_G.svg', 'Floor_H.svg']
+        for fname in floor_names:
+            self.assertIn(f"Failed to parse: {os.path.join(non_existent_dir, fname)}", output)
+        print(f"  Verified failure messages in output.")
+
+        print("--- Finished Testing process_maps Directory Not Found ---")

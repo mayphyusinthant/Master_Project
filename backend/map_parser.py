@@ -2,22 +2,9 @@ import os.path
 import networkx as nx
 import svgelements
 
-""" SVG map parser. Parsing all the floor maps from static folder """
-
-    # Parse the SVG map to get the graph data (nodes and edges)
+""" SVG map parser. Takes in one map as an argument. Returns NextworX graph. """
 def svg_map_parse(svg_map):
-    """
-    Parses an SVG file and extracts rectangular elements as nodes in a NetworkX graph,
-    connecting adjacent rectangles with edges.
 
-    Args:
-        svg_map (str): The path to the SVG file.
-
-    Returns:
-        networkx.Graph: A NetworkX graph representing the map, or None on error.
-                        Nodes are rectangles with their attributes, and edges connect
-                        adjacent rectangles with a weight equal to the average cost.
-    """
     graph = nx.Graph()
     nodes = {}
     rects = []  # For adjacency check
@@ -120,17 +107,6 @@ def svg_map_parse(svg_map):
     return graph
 
 def are_adjacent(rect1, rect2, tolerance=1.0):
-    """
-    Checks if two rectangles are adjacent (overlapping or touching sides within tolerance).
-
-    Args:
-        rect1 (dict): Dictionary representing the first rectangle {'x', 'y', 'width', 'height'}.
-        rect2 (dict): Dictionary representing the second rectangle {'x', 'y', 'width', 'height'}.
-        tolerance (float): Allowed gap or overlap to consider as touching.
-
-    Returns:
-        bool: True if the rectangles are adjacent, False otherwise.
-    """
     # Calculate the boundaries of the rectangles
     left1, right1 = rect1['x'], rect1['x'] + rect1['width']
     top1, bottom1 = rect1['y'], rect1['y'] + rect1['height']
@@ -138,7 +114,6 @@ def are_adjacent(rect1, rect2, tolerance=1.0):
     top2, bottom2 = rect2['y'], rect2['y'] + rect2['height']
 
     # Check if bounding boxes (expanded by tolerance) intersect
-    # This is a necessary condition for adjacency.
     x_overlap_possible = (left1 < right2 + tolerance) and (right1 + tolerance > left2)
     y_overlap_possible = (top1 < bottom2 + tolerance) and (bottom1 + tolerance > top2)
 
@@ -162,9 +137,6 @@ def are_adjacent(rect1, rect2, tolerance=1.0):
     if touching_along_x or touching_along_y:
         return True # They touch along a side
 
-    # Optional: Consider corner touching? Usually not desired for pathfinding grids.
-    # If needed, add condition like: abs(dx) < tolerance and abs(dy) < tolerance
-
     return False # Otherwise, they are separate
 
 
@@ -172,13 +144,19 @@ def are_adjacent(rect1, rect2, tolerance=1.0):
 def process_maps(directory="static"):
     # Dictionary for each floor graphs
     all_graphs = {}
-    for floor_name in ['Floor_A.svg', 'Floor_B.svg', 'Floor_C.svg', 'Floor_D.svg', 'Floor_E.svg', 'Floor_F.svg', 'Floor_G.svg', 'Floor_H.svg']:
-        svg_file = os.path.join(directory, f"{floor_name}.svg")
+    # Define floor names explicitly
+    floor_names = ['Floor_A.svg', 'Floor_B.svg', 'Floor_C.svg', 'Floor_D.svg',
+                   'Floor_E.svg', 'Floor_F.svg', 'Floor_G.svg', 'Floor_H.svg']
+    for floor_name in floor_names:
+        # Construct full path to the SVG file
+        svg_file = os.path.join(directory, floor_name)  # Corrected: use floor_name directly
+        # Call svg_map_parse for each file
         graph = svg_map_parse(svg_file)
-        if graph:
+        # Check if parsing was successful (graph is not None)
+        if graph is not None:  # Check specifically for None, as empty graph is valid
             all_graphs[floor_name] = graph
             print(f"Successfully parsed: {svg_file}")
         else:
+            # Print failure message if graph is None
             print(f"Failed to parse: {svg_file}")
-
     return all_graphs
