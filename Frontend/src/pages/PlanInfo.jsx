@@ -51,7 +51,7 @@ export const PlanInfo = () => {
         // Extract just the type values from the array of objects
         const typeValues = data.map(item => item.type);
         setRoomTypes(typeValues);
-        console.log("Room Types:", typeValues);
+       
         setIsLoading(false);
       })
       .catch((error) => {
@@ -71,7 +71,7 @@ export const PlanInfo = () => {
       
       const url = `http://localhost:5000/api/available_rooms?${params}`;
       
-      console.log("Fetching from URL:", url);
+      
       
       fetch(url)
         .then((response) => {
@@ -104,7 +104,7 @@ export const PlanInfo = () => {
     fetch('http://localhost:5000/api/available_rooms')
       .then((response) => response.json())
       .then((data) => {
-        console.log("All rooms data:", data);
+        
         // Filter rooms based on the selected floor when floor changes
         setFullRoomData(data);
 
@@ -129,17 +129,17 @@ export const PlanInfo = () => {
       (room.floor && room.floor.toUpperCase() === floor)
     );
     setFloorRooms(roomsOnFloor);
-    console.log(`Rooms on floor ${floor}:`, roomsOnFloor);
+    
   };
 
   return (
     <Grid2 container spacing={4} justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
       {/* Left Side - Room Information */}
       <Grid2
-        item
-        xs={12}
+        
+        
         justifyContent="center"
-        md={5}
+        
         display="flex"
         flexDirection="column"
         gap={2}
@@ -186,7 +186,7 @@ export const PlanInfo = () => {
         />
       </Grid2>
         
-      <Grid2 item xs={12} md={8}>
+      <Grid2 >
         <Card sx={{ p: 1, width: 400 }}>
           <CardContent>
             {selectedRoom ? (
@@ -208,7 +208,7 @@ export const PlanInfo = () => {
         </Card>
       </Grid2>
             
-      <Grid2 item xs={12} sx={{ width: '100%' }}>
+      <Grid2 sx={{ width: '100%' }}>
         <Box
           sx={{
             width: '100%', 
