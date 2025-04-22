@@ -11,14 +11,14 @@ import {
 import Map from '../components/InteractiveMap';
 import { useState, useEffect } from 'react';
 
-import floorA from '../assets/Floors/FLOOR A.svg';
-import floorB from '../assets/Floors/FLOOR B.svg';
-import floorC from '../assets/Floors/FLOOR C.svg';
-import floorD from '../assets/Floors/FLOOR D.svg';
-import floorE from '../assets/Floors/FLOOR E.svg';
-import floorF from '../assets/Floors/FLOOR F.svg';
-import floorG from '../assets/Floors/FLOOR G.svg';
-import floorH from '../assets/Floors/FLOOR H.svg';
+import floorA from '../assets/Floors/Floor_A.svg';
+import floorB from '../assets/Floors/Floor_B.svg';
+import floorC from '../assets/Floors/Floor_C.svg';
+import floorD from '../assets/Floors/Floor_D.svg';
+import floorE from '../assets/Floors/Floor_E.svg';
+import floorF from '../assets/Floors/Floor_F.svg';
+import floorG from '../assets/Floors/Floor_G.svg';
+import floorH from '../assets/Floors/Floor_H.svg';
 
 // Map floor letters to image files
 const floorMaps = {

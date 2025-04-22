@@ -3,10 +3,56 @@ from flask_mysqldb import MySQL
 from flask_cors import CORS
 from navigation_utils import create_navigation
 from datetime import datetime
+import os
+import networkx as nx
 import time
+
+# Importing map parsing and A* functions
+try:
+    from map_parser import process_maps
+    from a_star_pathfinding import find_node, pathfinding_algo
+    FUNCTIONS_LOADED = True
+    print("Successfully imported map parsing and A* functions")
+except ImportError as e:
+    print(f"ERROR: Failed to import required modules: {e}")
+    FUNCTIONS_LOADED = False
+
+# Global variable to store pre-parsed graphs
+FLOOR_GRAPHS = {}
+
+def initialise_graphs():
+    """ Parse all SVG maps on startup """
+    global FLOOR_GRAPHS
+    if not FUNCTIONS_LOADED:
+        print("Skipping graph initialisation due to import errors")
+        FLOOR_GRAPHS = {}
+        return
+
+    print("Initialising floor map graphs...")
+
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in locals() else '.'
+        map_directory = os.path.join(base_dir, "static")
+        print(f"Looking for maps in: {map_directory}")
+
+        FLOOR_GRAPHS = process_maps(directory=map_directory)
+
+        if not FLOOR_GRAPHS:
+            print(f"Warning: process_maps returned empty dictionary. No graphs loaded from '{map_directory}'.")
+        else:
+            print(f"Loaded {len(FLOOR_GRAPHS)} floor graphs: {list(FLOOR_GRAPHS.keys())}")
+    except Exception as e:
+        print(f"ERROR during graph initialisation: {e}")
+        import traceback
+        traceback.print_exc() # Print traceback for debugging
+        FLOOR_GRAPHS = {}
+
 app = Flask(__name__)
 
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+
+# Call initialisation when app starts
+initialise_graphs()
 
 # MySQL Configuration
 app.config['MYSQL_HOST'] = 'localhost'
@@ -75,6 +121,151 @@ def get_rooms():
 
 @app.route('/api/navigate', methods=['POST'])
 def handle_navigation():
+    # Checking if core functions failed to load during startup
+    if not FUNCTIONS_LOADED:
+        return jsonify({"status": "error", "message": "Navigation system unavailable due to initialisation error."}), 503
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": "error", "message": "Invalid request body"}), 400
+
+    start_room_input = data.get('from')
+    goal_room_input = data.get('to')
+
+    if not start_room_input or not goal_room_input:
+        return jsonify({"status": "error", "message": "Missing 'from' or 'to' room ID"}), 400
+
+    print(f"\n--- Navigation Request ---")
+    print(f"From: '{start_room_input}' To: '{goal_room_input}'")
+
+    # --- Fetch Room Details from DB (including coordinates needed for create_navigation) ---
+    from_room_details = None
+    to_room_details = None
+    try:
+        cur = mysql.connection.cursor()
+        # Fetch FROM room details
+        cur.execute("SELECT room_id, room_name, floor, x_coordinate, y_coordinate FROM room_info WHERE room_name = %s",
+                    (start_room_input,))
+        from_row = cur.fetchone()
+        if from_row:
+            from_room_details = {
+                "roomId": from_row[0], "roomName": from_row[1], "floor_db": from_row[2],  # Store original DB value
+                "x_coordinate": from_row[3], "y_coordinate": from_row[4]
+            }
+
+        # Fetch TO room details
+        cur.execute("SELECT room_id, room_name, floor, x_coordinate, y_coordinate FROM room_info WHERE room_name = %s",
+                    (goal_room_input,))
+        to_row = cur.fetchone()
+        if to_row:
+            to_room_details = {
+                "roomId": to_row[0], "roomName": to_row[1], "floor_db": to_row[2],  # Store original DB value
+                "x_coordinate": to_row[3], "y_coordinate": to_row[4]
+            }
+        cur.close()
+    except Exception as e:
+        print(f"Database error fetching room details: {e}")
+        return jsonify({"status": "error", "message": "Error fetching room details."}), 500
+
+    # --- Validate if rooms were found in DB ---
+    if not from_room_details or not to_room_details:
+        missing = []
+        if not from_room_details: missing.append(f"start room '{start_room_input}'")
+        if not to_room_details: missing.append(f"goal room '{goal_room_input}'")
+        msg = f"Could not find information for {' and '.join(missing)} in the database."
+        print(f"Error: {msg}")
+        return jsonify({"status": "error", "message": msg}), 404  # Not Found
+
+    # --- Extract Floor Letter ---
+    # Assumes floor_db contains something like "Floor A", "Floor B", etc.
+    # Extracts the last part after splitting by space. Handles single letters too.
+    start_floor_letter = from_room_details['floor_db'].split()[-1] if from_room_details and from_room_details.get('floor_db') else None
+    goal_floor_letter = to_room_details['floor_db'].split()[-1] if to_room_details and to_room_details.get('floor_db') else None
+
+    # Add validation for extracted letters
+    if not start_floor_letter or not goal_floor_letter:
+        msg = "Could not determine valid floor letter from database information."
+        print(
+            f"Error: {msg} (Start DB: {from_room_details.get('floor_db')}, Goal DB: {to_room_details.get('floor_db')})")
+        return jsonify({"status": "error", "message": msg}), 400
+
+    print(f"Determined Floor Letters - Start: {start_floor_letter}, Goal: {goal_floor_letter}")
+
+    # -------------------------------------------------------------------------------------- Handle cross floor navigation (STILL TO IMPLEMENT)
+    if start_floor_letter != goal_floor_letter:
+        # Implement multi floor pathfinding logic here
+        # find elevators and stairs on each floor and combine them? connect nodes?
+        msg = f"Cross-floor navigation (Floor {start_floor_letter} to Floor {goal_floor_letter} is not yet implemented"
+        print(f"Error: {msg}")
+        return jsonify({"status": "error", "message": msg}), 501 # not implemented
+    # -------------------------------------------------------------------------------------------------------------------------------------
+
+    # --- Get the correct floor graph ---
+    target_floor_filename = f"Floor_{start_floor_letter}.svg"
+    print(f"Target floor map file: {target_floor_filename}")
+
+    floor_graph = FLOOR_GRAPHS.get(target_floor_filename)
+
+    if floor_graph is None or not isinstance(floor_graph, nx.Graph):
+        print(f"Error: Parsed graph for '{target_floor_filename}' not found or invalid")
+        return jsonify({"status": "error", "message": f"Map data for floor {start_floor_letter} is currently unavailable"}), 500
+
+    # --- Find Start/Goal nodes within the Graph
+    print(f"Searching graph for node matching '{start_room_input}'...")
+    start_node_id = find_node(start_room_input, floor_graph)
+
+    print(f"Searching graph for node matching '{goal_room_input}'...")
+    goal_node_id = find_node(goal_room_input, floor_graph)
+
+    # Validate if nodes were found in the graph structure
+    if start_node_id is None:
+        msg = f"Start location '{start_room_input}' not found as a navigable area on the Floor {start_floor_name} map graph."
+        print(f"Error: {msg}")
+        return jsonify({"status": "error", "message": msg}), 404
+    if goal_node_id is None:
+        msg = f"Goal location '{goal_room_input}' not found as a navigable area on the Floor {goal_floor_name} map graph."
+        print(f"Error: {msg}")
+        return jsonify({"status": "error", "message": msg}), 404
+
+    print(f"Found graph nodes: Start='{start_node_id}', Goal='{goal_node_id}'")
+
+    # --- Run A* Algorithm ---
+    print("Running A* pathfinding...")
+    path_node_ids = pathfinding_algo(start_node_id, goal_node_id, floor_graph)
+
+    # --- Process and return result ---
+    if path_node_ids:
+        print(f"A* Path found with {len(path_node_ids)} steps.")
+        try:
+            # Extract the type from node data for the response
+            path_room_types = [floor_graph.nodes[node_id].get('type', 'Unknown') for node_id in path_node_ids]
+            print(f"Path (types): {' -> '.join(path_room_types)}")
+            # Return success with the path of room types
+            return jsonify({
+                "status": "success",
+                "message": "Path found",
+                "path": path_room_types
+                # --------------------------- ADD COORDS IF FRONTEND NEEDS TO DRAW A PATH??
+                # "path_coords": [(floor_graph.nodes[n]['center_x'], floor_graph.nodes[n]['center_y']) for n in path_nodes_ids]
+            }), 200
+        except KeyError as e:
+            print(f"Error accessing node data while formatting path: {e}")
+            return jsonify({
+                "status": "success", # Path found but formatting failed
+                "message": "Path found, but encountered an error formatting the display path.",
+                "path_raw": path_node_ids # Send raw unique ids as fallback
+            }), 200
+    else:
+        # A* returned None
+        print("A* algorithm returned no path")
+        return jsonify({
+            "status": "error",
+            "message": f"Sorry, no navigable path could be found between '{start_room_input}' and {goal_room_input}'",
+            "path": []
+        }), 404
+
+    #------------------------------------ OLD ONES BELOW
+    """
     data = request.get_json()
     print(data)
     from_name = data.get('from')
@@ -114,6 +305,7 @@ def handle_navigation():
     result = create_navigation(from_room, to_room)
 
     return jsonify({"status": "success", "message": result}), 200
+    """
 
 
 

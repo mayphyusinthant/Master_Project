@@ -8,7 +8,7 @@ import { CircularProgress } from '@mui/material';
 
 import 'leaflet/dist/leaflet.css'; // Import Leaflet styles
 import Map from '../components/Map';
-import map from '../assets/Floors/FLOOR B.svg';
+import map from '../assets/Floors/Floor_B.svg';
 // Use your floor plan SVG
 
 export const Navigation = () => {
