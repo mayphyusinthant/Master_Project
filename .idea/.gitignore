@@ -1,0 +1,33 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+
+# General
+.DS_Store
+node_modules/
+dist/
+build/
+.env
+*.log
+
+# React
+.vite/
+*.cache
+
+# Flask
+__pycache__/
+*.pyc
+instance/
+venv/
+.env
+
+# Logs and temp files
+*.log
+*.sqlite3
+*.sqlite
+
+# IDE and OS files
+.idea/
+.vscode/
+*.swp
+*.swo

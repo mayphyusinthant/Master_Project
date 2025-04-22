@@ -1,3 +1,28 @@
+# General
+build/
+
+# React
+.vite/
+*.cache
+
+# Flask
+__pycache__/
+*.pyc
+instance/
+venv/
+.env
+
+# Logs and temp files
+*.log
+*.sqlite3
+*.sqlite
+
+# IDE and OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+
 # Logs
 logs
 *.log

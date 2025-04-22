@@ -1,12 +1,70 @@
 from flask import Flask, render_template, request, jsonify
 from flask_mysqldb import MySQL
 from flask_cors import CORS
-from navigation_utils import create_navigation
 from datetime import datetime
-import time
+import os
+import networkx as nx
+import traceback
+
+# Import map parsing and A* functions
+try:
+    from map_parser import create_campus_graph
+    from a_star_pathfinding import find_node, pathfinding_algo
+    from navigation_utils import create_navigation
+
+    # Enable navigation functionality
+    FUNCTIONS_LOADED = True
+    print("Successfully imported map parsing, A*, and navigation_utils functions.")
+except ImportError as e:
+    print(f"ERROR: Failed to import required modules: {e}")
+    print("Navigation functionality will be disabled.")
+    FUNCTIONS_LOADED = False
+
+    # Define dummy functions if import fails, so app can still run (partially)
+    def create_campus_graph(directory="static", **kwargs): print("Dummy create_campus_graph called."); return None
+    def find_node(room_id, graph): print("Dummy find_node called."); return None
+    def pathfinding_algo(start, goal, graph): print("Dummy pathfinding_algo called."); return None
+    def create_navigation(f_room, t_room): print("Dummy create_navigation called."); return "Navigation unavailable."
+
+# Global variable to store the combined campus graph
+CAMPUS_GRAPH = None
+
+def initialize_graphs():
+    """ Parse all SVG maps and creates a combined campus graph on startup """
+    global CAMPUS_GRAPH
+    if not FUNCTIONS_LOADED:
+        print("Skipping graph initialization due to import errors.")
+        CAMPUS_GRAPH = None
+        return
+
+    print("Initializing combined campus graph...")
+    try:
+        # Specify the directory containing SVG files
+        base_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in locals() else '.'
+        map_directory = os.path.join(base_dir, "static")
+        print(f"Looking for maps in: {map_directory}")
+
+        CAMPUS_GRAPH = create_campus_graph(directory=map_directory)
+
+        if CAMPUS_GRAPH is None or not isinstance(CAMPUS_GRAPH, nx.Graph):
+             print(f"ERROR: create_campus_graph failed to return a valid graph from '{map_directory}'.")
+             CAMPUS_GRAPH = None
+        elif len(CAMPUS_GRAPH.nodes) == 0:
+             print(f"Warning: Combined campus graph has 0 nodes. Check parsing.")
+        else:
+             print(f"Combined campus graph created successfully.")
+             print(f"Total Nodes: {CAMPUS_GRAPH.number_of_nodes()}, Total Edges: {CAMPUS_GRAPH.number_of_edges()}")
+    except Exception as e:
+        print(f"ERROR during graph initialization: {e}")
+        traceback.print_exc() # Print detailed traceback for debugging
+        CAMPUS_GRAPH = None
+
 app = Flask(__name__)
 
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+
+# Call initialisation when app starts
+initialize_graphs()
 
 # MySQL Configuration
 app.config['MYSQL_HOST'] = 'localhost'
@@ -75,47 +133,123 @@ def get_rooms():
 
 @app.route('/api/navigate', methods=['POST'])
 def handle_navigation():
+    # Check if core functions loaded and graph is initialized
+    if not FUNCTIONS_LOADED:
+         return jsonify({"status": "error", "message": "Navigation system unavailable due to import errors."}), 503
+    if CAMPUS_GRAPH is None or not isinstance(CAMPUS_GRAPH, nx.Graph):
+         return jsonify({"status": "error", "message": "Navigation map data is not available."}), 503
+
     data = request.get_json()
-    print(data)
-    from_name = data.get('from')
-    to_name = data.get('to')
+    if not data:
+        return jsonify({"status": "error", "message": "Invalid request body"}), 400
 
-    cur = mysql.connection.cursor()
+    # Initial and goal inputs
+    start_room_input = data.get('from')
+    goal_room_input = data.get('to')
 
-    # Fetch FROM room
-    cur.execute("SELECT room_id, room_name, floor, x_coordinate, y_coordinate FROM room_info WHERE room_name = %s", (from_name,))
-    from_row = cur.fetchone()
+    if not start_room_input or not goal_room_input:
+        return jsonify({"status": "error", "message": "Missing 'from' or 'to' room ID"}), 400
 
-    # Fetch TO room
-    cur.execute("SELECT room_id, room_name, floor, x_coordinate, y_coordinate FROM room_info WHERE room_name = %s", (to_name,))
-    to_row = cur.fetchone()
+    print(f"\n--- Navigation Request ---")
+    print(f"From: '{start_room_input}' To: '{goal_room_input}'")
 
-    cur.close()
+    # Fetch Room Details from DB
+    from_room_details = None
+    to_room_details = None
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT room_id, room_name, floor, x_coordinate, y_coordinate FROM room_info WHERE room_name = %s", (start_room_input,))
+        from_row = cur.fetchone()
+        if from_row: from_room_details = {"roomId": from_row[0], "roomName": from_row[1], "floor_db": from_row[2], "x_coordinate": from_row[3], "y_coordinate": from_row[4]}
+        cur.execute("SELECT room_id, room_name, floor, x_coordinate, y_coordinate FROM room_info WHERE room_name = %s", (goal_room_input,))
+        to_row = cur.fetchone()
+        if to_row: to_room_details = {"roomId": to_row[0], "roomName": to_row[1], "floor_db": to_row[2], "x_coordinate": to_row[3], "y_coordinate": to_row[4]}
+        cur.close()
+    except Exception as e:
+        print(f"Database error fetching room details: {e}")
+        return jsonify({"status": "error", "message": "Error fetching room details."}), 500
 
-    if not from_row or not to_row:
-        return jsonify({"status": "error", "message": "One or both rooms not found"}), 404
-    
-    from_room = {
-        "roomId": from_row[0],
-        "roomName": from_row[1],
-        "floor": from_row[2],
-        "x_coordinate": from_row[3],
-        "y_coordinate": from_row[4]
-    }
+    # Validate if rooms were found in DB
+    if not from_room_details or not to_room_details:
+        missing = []
+        if not from_room_details: missing.append(f"start room '{start_room_input}'")
+        if not to_room_details: missing.append(f"goal room '{goal_room_input}'")
+        msg = f"Could not find information for { ' and '.join(missing) } in the database."
+        print(f"Error: {msg}")
+        return jsonify({"status": "error", "message": msg}), 404
 
-    to_room = {
-        "roomId": to_row[0],
-        "roomName": to_row[1],
-        "floor": to_row[2],
-        "x_coordinate": to_row[3],
-        "y_coordinate": to_row[4]
-    }
+    # Find Start/Goal Nodes within the COMBINED Graph
+    print(f"Searching campus graph for node matching '{start_room_input}'...")
+    start_node_id = find_node(start_room_input, CAMPUS_GRAPH)
+    print(f"Searching campus graph for node matching '{goal_room_input}'...")
+    goal_node_id = find_node(goal_room_input, CAMPUS_GRAPH)
 
-    result = create_navigation(from_room, to_room)
+    # Validate if nodes were found in the graph structure
+    if start_node_id is None:
+        msg = f"Start location '{start_room_input}' not found as a navigable area in the campus map graph."
+        print(f"Error: {msg}")
+        return jsonify({"status": "error", "message": msg}), 404
+    if goal_node_id is None:
+        msg = f"Goal location '{goal_room_input}' not found as a navigable area in the campus map graph."
+        print(f"Error: {msg}")
+        return jsonify({"status": "error", "message": msg}), 404
 
-    return jsonify({"status": "success", "message": result}), 200
+    print(f"Found graph nodes: Start='{start_node_id}', Goal='{goal_node_id}'")
 
+    # Run A* Pathfinding on the COMBINED Graph
+    print("Running A* algorithm...")
+    path_node_ids = pathfinding_algo(start_node_id, goal_node_id, CAMPUS_GRAPH)
 
+    # Process and Return Result
+    if path_node_ids:
+        print(f"A* Path found with {len(path_node_ids)} steps.")
+        # Call create_navigation to get the formatted message
+        nav_message = "Navigation details unavailable."
+        if 'create_navigation' in globals():
+            try:
+                from_nav = from_room_details.copy(); from_nav['floor'] = from_room_details['floor_db']
+                to_nav = to_room_details.copy(); to_nav['floor'] = to_room_details['floor_db']
+                nav_message = create_navigation(from_nav, to_nav)
+            except Exception as e: print(f"Error calling create_navigation: {e}")
+
+        # Format path for display AND extract coordinates
+        path_room_types = []
+        path_coordinates = []
+        try:
+            for node_id in path_node_ids:
+                 node_data = CAMPUS_GRAPH.nodes[node_id]
+                 path_room_types.append(node_data.get('type', 'Unknown'))
+                 # Extract center coordinates
+                 path_coordinates.append([
+                     node_data.get('center_x', 0.0),
+                     node_data.get('center_y', 0.0)
+                 ])
+            print(f"Path (types): {' -> '.join(path_room_types)}")
+        except KeyError as e:
+             print(f"Error accessing node data while formatting path: {e}")
+             return jsonify({
+                 "status": "success",
+                 "message": nav_message,
+                 "path_raw": path_node_ids,
+                 "error_details": "Path found, error formatting display path."
+             }), 200
+
+        # Return success response with path types and coordinates
+        return jsonify({
+            "status": "success",
+            "message": nav_message,
+            "path": path_room_types,
+            "path_coords": path_coordinates
+        }), 200
+    else:
+        # A* returned None
+        print("A* algorithm returned no path.")
+        return jsonify({
+            "status": "error",
+            "message": f"Sorry, no navigable path could be found between '{start_room_input}' and '{goal_room_input}'.",
+            "path": [],
+            "path_coords": [] # Empty list on failure
+        }), 404
 
 @app.route('/api/library_room_types', methods=['GET'])
 def get_library_room_types():
