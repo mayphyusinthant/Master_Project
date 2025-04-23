@@ -64,7 +64,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 
 # Call initialisation when app starts
-initialize_graphs()
+# initialize_graphs()
 
 # MySQL Configuration
 app.config['MYSQL_HOST'] = 'localhost'

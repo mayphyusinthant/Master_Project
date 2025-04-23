@@ -1,6 +1,9 @@
 import { createContext, useMemo, useState } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
+import bannerLight from "../assets/banner.png";
+import bannerDark from "../assets/banner_black.png";
+
 export const ColorModeContext = createContext({ toggleColorMode: () => {} });
 
 export const CustomThemeProvider = ({ children }) => {
@@ -29,6 +32,16 @@ export const CustomThemeProvider = ({ children }) => {
               text: {
                 primary: "#000000",
               },
+              banner: {
+                src: bannerLight,
+                background: 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 100%)'
+
+              }, 
+              header : {
+                background: "#FF5050",
+                
+              }
+
             }
           : {
               primary: {
@@ -42,6 +55,13 @@ export const CustomThemeProvider = ({ children }) => {
               text: {
                 primary: "#ffffff",
               },
+              banner: {
+                src: bannerDark,
+                background: 'linear-gradient(to right, rgba(174, 173, 173, 0.2) 0%, rgba(61, 61, 61, 0.8) 100%)'
+              },
+              header : {
+                background: '#be3939',
+              }
             }),
       },
     });

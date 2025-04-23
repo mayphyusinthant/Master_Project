@@ -10,11 +10,12 @@ export const Header = () => {
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
   const isDark = theme.palette.mode === 'dark';
+  const headerBackground = theme.palette.header.background; 
 
 
 return (
 
-    <AppBar position="static" sx={{ textAlign: 'left', backgroundColor: '#FF5050' }}>
+    <AppBar position="static" sx={{ textAlign: 'left', backgroundColor: headerBackground }}>
       <Container maxWidth="md">
         <Toolbar>
           <Link to="/">
