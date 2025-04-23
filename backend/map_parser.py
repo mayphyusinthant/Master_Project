@@ -168,7 +168,7 @@ def process_maps(directory="static"):
     return all_graphs
 
 # ADJUST THE TOLERANCE WHEN TESTING!!!! <-----------------------------------------------------------------------------------------------------
-def create_campus_graph(directory="static", connection_tolerance=100.0, inter_floor_weight=10.0):
+def create_campus_graph(directory="static", connection_tolerance=1000.0, inter_floor_weight=10.0):
     """
     Creates a single combined graph for all floors, including inter-floor connections.
 
