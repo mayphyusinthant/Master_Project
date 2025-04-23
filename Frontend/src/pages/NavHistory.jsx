@@ -1,18 +1,39 @@
-import { Delete, Replay } from '@mui/icons-material';
-import { Box, Button, IconButton, List, ListItem, ListItemText } from '@mui/material';
+import { Clear } from '@mui/icons-material';
+import { Box, Button, Typography, CircularProgress } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearHistory, removeRoute, setSelectedRoute } from '../features/history/historySlice';
+import {
+  clearHistoryFromDB,
+  deleteRouteFromDB,
+  fetchHistoryFromDB,
+  setSelectedRoute,
+} from '../features/history/historySlice';
 import { PageTitle } from '../components/pageTitle';
+import { NavHistoryCard } from '../components/NavHistoryCard';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 export const NavHistory = () => {
-  const history = useSelector((state) => state.history.history);
+  const { history, loading } = useSelector((state) => state.history);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    dispatch(fetchHistoryFromDB());
+  }, [dispatch]);
+
   const handleRepeatRoute = (route) => {
-    dispatch(setSelectedRoute(route)); // Store the selected route
-    navigate('/navigation'); // Redirect to Navigation page
+    const normalized = {
+      from: route.from_room,
+      to:  route.to_room,
+      floorFrom: route.floor_from,
+      floorTo: route.floor_to,
+    };
+    dispatch(setSelectedRoute(normalized));
+    navigate('/navigation');
+  };
+
+  const handleDeleteRoute = (id) => {
+    dispatch(deleteRouteFromDB(id));
   };
 
   return (
@@ -20,40 +41,49 @@ export const NavHistory = () => {
       display="flex"
       flexDirection="column"
       alignItems="center"
-      gap={2}
-      sx={{ '& > *': { mb: 1 } }}
+      gap={3}
+      width="100%"
+      mx="auto"
+      px={2}
     >
       <PageTitle title="Navigation History" />
-      <List>
-        {history
-          .slice()
-          .reverse()
-          .map((route) => (
-            <ListItem key={route.timestamp} sx={{ mb: 1 }}>
-              <ListItemText
-                primary={`${route.from} → ${route.to}`}
-                secondary={`Saved on: ${route.timestamp}`}
+
+      <Box
+        width="100%"
+        display="grid"
+        gridTemplateColumns={{ xs: '1fr', sm: 'repeat(2, 1fr)' }}
+        gap={2}
+      >
+        {loading ? (
+          <Box mt={5} display="flex" justifyContent="center" width="100%">
+            <CircularProgress />
+          </Box>
+        ) : history.length === 0 ? (
+          <Box mt={4}>
+            <Typography variant="body1">No history yet.</Typography>
+          </Box>
+        ) : (
+          history
+            .slice()
+            .reverse()
+            .map((route) => (
+              <NavHistoryCard
+                key={route.timestamp}
+                route={route}
+                onRepeat={() => handleRepeatRoute(route)}
+                onDelete={() => handleDeleteRoute(route.id)}
               />
-              <IconButton onClick={() => handleRepeatRoute(route)}>
-                <Replay />
-              </IconButton>
-              <IconButton
-                onClick={() => {
-                  dispatch(removeRoute(route.timestamp));
-                  console.log('Removed route:', route);
-                }}
-              >
-                <Delete />
-              </IconButton>
-            </ListItem>
-          ))}
-      </List>
-      {history.length > 0 && (
+            ))
+        )}
+      </Box>
+
+      {history.length > 0 && !loading && (
         <Button
           sx={{ mb: 3 }}
           variant="contained"
           color="secondary"
-          onClick={() => dispatch(clearHistory())}
+          startIcon={<Clear />}
+          onClick={() => dispatch(clearHistoryFromDB())}
         >
           Clear History
         </Button>

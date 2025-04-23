@@ -1,7 +1,7 @@
 import { Box, Autocomplete, TextField, Button } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addRoute, setSelectedRoute } from '../features/history/historySlice';
+import { saveRouteToDB, setSelectedRoute } from '../features/history/historySlice';
 import { CircularProgress } from '@mui/material';
 
 // import { locations } from '../data/locations';
@@ -37,8 +37,17 @@ export const Navigation = () => {
 
   const handleNavigate = () => {
     if (from && to) {
+    
+    const fromRoom = locations.find((room) => room.roomName === from);
+    const toRoom = locations.find((room) => room.roomName === to);
+
+    const floorFrom = fromRoom?.floor || '';
+    const floorTo = toRoom?.floor || '';
+
+    const newRoute = { from, to, floorFrom, floorTo };
+
       setZoom(4);
-      dispatch(addRoute({ from, to }));
+      dispatch(saveRouteToDB(newRoute));
       setLoading(true);
       setMessage(''); // Clear previous message
   

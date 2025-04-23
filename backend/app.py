@@ -488,6 +488,52 @@ def remove_booking(bookingId):
     cur.close()
     return jsonify({ 'message': 'Booking removed successfully.' }), 200
 
+@app.route('/api/history', methods=['GET'])
+def get_history():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM navigation_history ORDER BY timestamp DESC")
+    rows = cur.fetchall()
+    columns = [col[0] for col in cur.description]
+    result = [dict(zip(columns, row)) for row in rows]
+    cur.close()
+    return jsonify(result)
+
+
+@app.route('/api/history', methods=['POST'])
+def add_history():
+    data = request.json
+    from_room = data.get('from')
+    to_room = data.get('to')
+    floor_from = data.get('floorFrom')
+    floor_to = data.get('floorTo')
+
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO navigation_history (from_room, to_room, floor_from, floor_to)
+        VALUES (%s, %s, %s, %s)
+    """, (from_room, to_room, floor_from, floor_to))
+    mysql.connection.commit()
+    cur.close()
+
+    return jsonify({"message": "Navigation history saved."})
+
+
+@app.route('/api/history/<int:history_id>', methods=['DELETE'])
+def delete_history_entry(history_id):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM navigation_history WHERE id = %s", (history_id,))
+    mysql.connection.commit()
+    cur.close()
+    return jsonify({"message": f"Deleted route {history_id}."})
+
+
+@app.route('/api/history', methods=['DELETE'])
+def clear_all_history():
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM navigation_history")
+    mysql.connection.commit()
+    cur.close()
+    return jsonify({"message": "All history cleared."})
 
 
 if __name__ == '__main__':
