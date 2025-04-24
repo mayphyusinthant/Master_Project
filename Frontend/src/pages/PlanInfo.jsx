@@ -192,10 +192,10 @@ export const PlanInfo = () => {
             {selectedRoom ? (
               <>
                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                  {selectedRoom}
+                  {typeof selectedRoom == 'string' ? selectedRoom : selectedRoom?.roomName}
                 </Typography>
                 <Typography variant="body1" sx={{ mt: 1 }}>
-                  {description || "No description available"}
+                  {typeof selectedRoom == 'string' ? description : selectedRoom?.description}
                 </Typography>
                
               </>

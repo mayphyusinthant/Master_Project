@@ -2,7 +2,6 @@ import { Box, Autocomplete, TextField, Button, CircularProgress } from '@mui/mat
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveRouteToDB, setSelectedRoute } from '../features/history/historySlice';
-import { CircularProgress } from '@mui/material';
 
 // import { locations } from '../data/locations';
 
@@ -91,7 +90,6 @@ export const Navigation = () => {
 
     const newRoute = { from, to, floorFrom, floorTo };
 
-      setZoom(4);
       dispatch(saveRouteToDB(newRoute));
 
       setLoading(true);

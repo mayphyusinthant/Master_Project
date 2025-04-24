@@ -414,13 +414,17 @@ def get_available_rooms():
 
 @app.route('/api/current_bookings', methods=['GET'])
 def get_current_bookings():
+
+    student_id = request.args.get('student_id')
+
+    if not student_id:
+       return jsonify({"error": "Fetching data failed - student Id Required !"}), 400
+
     cur = mysql.connection.cursor()
     query = """
-        SELECT rooms_booking_info.*, room_info.room_name, room_info.floor 
-        FROM rooms_booking_info 
-        LEFT JOIN room_info ON rooms_booking_info.room_id = room_info.room_id
+        SELECT rooms_booking_info.*, room_info.room_name, room_info.floor FROM rooms_booking_info LEFT JOIN room_info ON rooms_booking_info.room_id = room_info.room_id WHERE rooms_booking_info.student_id = %s
     """
-    cur.execute(query)
+    cur.execute(query, (student_id,))
 
     rows = cur.fetchall()
     cur.close()
