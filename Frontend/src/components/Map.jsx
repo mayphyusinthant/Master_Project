@@ -6,7 +6,7 @@ function Map({ zoom, map }) {
       center={[0, 0]} // Centered at (0,0) since it's an indoor map
       zoom={zoom}
       scrollWheelZoom={true}
-      style={{ height: '500px', width: '100%', border: '2px solid black', marginBottom: 25 }}
+      style={{ height: '600px', width: '100%', border: '2px solid black', marginBottom: 25 }}
     >
       {/* Overlay the SVG Image on Leaflet */}
       <ImageOverlay
