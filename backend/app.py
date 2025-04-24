@@ -582,7 +582,7 @@ def create_class_schedule():
     title = data.get('title')
     start_date_time = data.get('start_date_time')
     end_date_time = data.get('end_date_time')
-    status = 'Available'  # Default to 'Active' if not provided
+    status = 'Booked'  # Default to 'Active' if not provided
 
     if not all([room_id, schedule_type, start_date_time, end_date_time]):
         return jsonify({'error': 'Missing required fields'}), 400
