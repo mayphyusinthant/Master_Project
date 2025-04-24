@@ -14,8 +14,8 @@ function App() {
         color: theme.palette.text.primary,
       }}>
         <Header />
-        <Container maxWidth="md">
-          <Box flexGrow={1}>
+        <Container  maxWidth="md" sx={{ flexGrow: 1}}>
+          <Box >
             <AppRoutes />
           </Box>
         </Container>

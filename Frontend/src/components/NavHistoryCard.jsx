@@ -34,7 +34,7 @@ import {
           <Box sx={{ display: 'flex', flexDirection: 'column', ml: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
               <FiberManualRecordIcon fontSize="small" sx={{ mr: 1, ml:0.5 }} />
-              <Typography variant="h6" component="span" sx={{ fontSize: '1.2rem', fontWeight: 'bold',  fontStyle:"italic" }}>
+              <Typography variant="h6" component="span" sx={{ fontSize: '1.2rem',  fontStyle:"italic" }}>
   {from_room} ({floor_from}) 
 </Typography>
 
@@ -42,7 +42,7 @@ import {
             <Divider sx={{ ml: 1.5, borderLeft: '4px solid #ccc', borderBottom: 'none', height: 20 }} />
             <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
               <FiberManualRecordIcon fontSize="small" sx={{ mr: 1, ml:0.5 }} />
-              <Typography variant="h6" component="span" sx={{ fontSize: '1.2rem', fontWeight: 'bold', fontStyle:"italic" }}>{to_room} ({floor_to})</Typography>
+              <Typography variant="h6" component="span" sx={{ fontSize: '1.2rem', fontStyle:"italic" }}>{to_room} ({floor_to})</Typography>
             </Box>
           </Box>
   

@@ -1,9 +1,10 @@
 import { useTheme } from '@emotion/react';
-import { AppBar, Container, FormControlLabel, IconButton, Switch, Toolbar, Typography } from '@mui/material';
+import { AppBar, Container, FormControlLabel, IconButton, Switch, Toolbar, Tooltip, Typography } from '@mui/material';
 import { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ColorModeContext } from '../theme/ColorModeContext';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 export const Header = () => {
 
@@ -11,6 +12,7 @@ export const Header = () => {
   const colorMode = useContext(ColorModeContext);
   const isDark = theme.palette.mode === 'dark';
   const headerBackground = theme.palette.header.background; 
+  const navigate = useNavigate();
 
 
 return (
@@ -38,6 +40,8 @@ return (
               icon={<Brightness7 sx={{ color: '#fdd835' }} />} // Sun
               checkedIcon={<Brightness4 sx={{ color: '#90caf9' }} />} // Moon
               sx={{
+                mr: -1,
+                
                 '& .MuiSwitch-switchBase.Mui-checked': {
                   color: '#fff',
                 },
@@ -49,6 +53,11 @@ return (
           }
           label=""
         />
+        <Tooltip title="Admin"  >
+  <IconButton sx={{ml: "-3"}}  color="inherit" onClick={() => navigate('/admin')}>
+    <AdminPanelSettingsIcon sx={{ml: "-3"}}/>
+  </IconButton>
+</Tooltip>
         </Toolbar>
       </Container>
     </AppBar>
