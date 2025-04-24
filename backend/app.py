@@ -6,6 +6,7 @@ import os
 import networkx as nx
 import traceback
 
+
 # Import map parsing and A* functions
 try:
     from map_parser import create_campus_graph
@@ -413,17 +414,13 @@ def get_available_rooms():
 
 @app.route('/api/current_bookings', methods=['GET'])
 def get_current_bookings():
-
-    student_id = request.args.get('student_id')
-
-    if not student_id:
-       return jsonify({"error": "Fetching data failed - student Id Required !"}), 400
-
     cur = mysql.connection.cursor()
     query = """
-        SELECT rooms_booking_info.*, room_info.room_name, room_info.floor FROM rooms_booking_info LEFT JOIN room_info ON rooms_booking_info.room_id = room_info.room_id WHERE rooms_booking_info.student_id = %s
+        SELECT rooms_booking_info.*, room_info.room_name, room_info.floor 
+        FROM rooms_booking_info 
+        LEFT JOIN room_info ON rooms_booking_info.room_id = room_info.room_id
     """
-    cur.execute(query, (student_id,))
+    cur.execute(query)
 
     rows = cur.fetchall()
     cur.close()
@@ -534,6 +531,149 @@ def clear_all_history():
     mysql.connection.commit()
     cur.close()
     return jsonify({"message": "All history cleared."})
+
+from flask import request, jsonify
+
+# ======= CLASS SCHEDULE ROUTES =======
+
+@app.route('/api/class_schedules', methods=['GET'])
+def get_class_schedules():
+    cur = mysql.connection.cursor()
+    query = """
+        SELECT cs.schedule_id, cs.room_id, cs.start_date_time, cs.end_date_time, cs.schedule_type, cs.status, r.room_name, r.floor
+        FROM class_schedule_info cs
+        LEFT JOIN room_info r ON cs.room_id = r.room_id
+        ORDER BY cs.start_date_time ASC
+    """
+    cur.execute(query)
+    rows = cur.fetchall()
+    cur.close()
+
+    schedules = []
+    for row in rows:
+        schedules.append({
+            "schedule_id": row[0],
+            "room_id": row[1],
+            "start_date_time": row[2],
+            "end_date_time": row[3],
+            "schedule_type": row[4],
+            "status": row[5],
+            "room_name": row[6],
+            "floor": row[7]
+        })
+
+    return jsonify(schedules)
+
+
+@app.route('/api/create_class_schedule', methods=['POST'])
+def create_class_schedule():
+    
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({'error': 'Missing data'}), 400
+
+    room_id = data.get('room_id')
+    schedule_type = data.get('schedule_type')
+    title = data.get('title')
+    start_date_time = data.get('start_date_time')
+    end_date_time = data.get('end_date_time')
+    status = 'Available'  # Default to 'Active' if not provided
+
+    if not all([room_id, schedule_type, start_date_time, end_date_time]):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("""
+    INSERT INTO class_schedule_info (room_id, schedule_type, start_date_time, end_date_time, status, title)
+    VALUES (%s, %s, %s, %s, %s, %s)
+""", (room_id, schedule_type, start_date_time, end_date_time, status, title))
+        mysql.connection.commit()
+        cur.close()
+        return jsonify({'message': 'Schedule created successfully'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/class_schedule', methods=['GET'])
+def get_class_schedule():
+    try:
+        cur = mysql.connection.cursor()
+        query = """
+            SELECT cs.schedule_id, cs.room_id, cs.start_date_time, cs.end_date_time, cs.schedule_type, cs.status, cs.title, r.room_name, r.room_type, r.floor
+            FROM class_schedule_info cs
+            LEFT JOIN room_info r ON cs.room_id = r.room_id
+            ORDER BY cs.start_date_time ASC
+        """
+        cur.execute(query)
+        rows = cur.fetchall()
+        cur.close()
+
+        schedules = []
+        for row in rows:
+            schedules.append({
+                "schedule_id": row[0],
+                "room_id": row[1],
+                "start_date_time": row[2],
+                "end_date_time": row[3],
+                "schedule_type": row[4],
+                "status": row[5],
+                "title": row[6],
+                "room_name": row[7],
+                "room_type": row[8],
+                "floor": row[9]
+            })
+
+        
+        return jsonify(schedules)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+@app.route('/api/update_class_schedule/<int:schedule_id>', methods=['PUT'])
+def update_class_schedule(schedule_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Invalid or missing JSON body'}), 400
+
+    try:
+        cur = mysql.connection.cursor()
+        query = """
+            UPDATE class_schedule_info
+            SET room_id = %s, schedule_type = %s, start_date_time = %s, end_date_time = %s, title = %s
+            WHERE schedule_id = %s
+            """
+        cur.execute(query, (
+            data['room_id'],
+            data['schedule_type'],
+            data['start_date_time'],
+            data['end_date_time'],
+            data['title'],  # New
+            schedule_id
+))
+        mysql.connection.commit()
+        cur.close()
+        return jsonify({'message': 'Schedule updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+
+@app.route('/api/delete_class_schedule/<int:schedule_id>', methods=['DELETE'])
+def delete_class_schedule(schedule_id):
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("DELETE FROM class_schedule_info WHERE schedule_id = %s", (schedule_id,))
+        mysql.connection.commit()
+        cur.close()
+        return jsonify({'message': 'Schedule deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 
 if __name__ == '__main__':

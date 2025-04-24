@@ -7,7 +7,7 @@ import { LibraryInfo } from '../pages/LibraryInfo';
 import { CampusInfo } from '../pages/CampusInfo';
 import { RoomBooking } from '../pages/RoomBooking';
 import { AdminLayout } from '../pages/AdminLayout';
-import ClassSchedule from '../pages/ClassSchedule';
+import {ClassSchedule} from '../pages/ClassSchedule';
 import { LibraryRooms } from '../pages/LibraryRooms';
 import { AboutAuthors } from '../pages/AboutAuthors';
 import { Container } from '@mui/material';
