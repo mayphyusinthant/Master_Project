@@ -159,33 +159,11 @@ const Map = ({ map, pathCoordinates }) => {
 
 
   return (
-    <Box
-      ref={svgContainerRef}
-      width="90%"
-      maxWidth="900px"
-      maxHeight="80vh" // Limit height
-      border="1px solid #ccc"
-      borderRadius="8px"
-      overflow="auto" // Add scrollbars if SVG content is larger than the container
-      bgcolor="#ffffff"
-      mt={2}
-      mb={2}
-      // Use sx prop for styling the inner SVG dynamically
-      sx={{
-        display: 'flex', // Center content (loading/error message)
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative', // Needed if you want to absolutely position elements inside later
-        minHeight: '400px',
-        '& svg': { // Style the SVG element itself once loaded
-          display: 'block',
-          width: '100%',
-          height: 'auto',
-          maxWidth: '100%',
-          maxHeight: 'calc(100vh - 4px)',
-        }
-      }}
-    >
+    <MapContainer
+      center={[0, 0]} // Centered at (0,0) since it's an indoor map
+      zoom={zoom}
+      scrollWheelZoom={true}
+      style={{ height: '600px', width: '100%', border: '2px solid black', marginBottom: 25 }}    >
       {/* Display Loading Indicator */}
       {isLoading && <CircularProgress />}
 

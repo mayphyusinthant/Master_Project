@@ -1,7 +1,13 @@
 import { Box, Autocomplete, TextField, Button, CircularProgress } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addRoute, setSelectedRoute } from '../features/history/historySlice';
+import { saveRouteToDB, setSelectedRoute } from '../features/history/historySlice';
+import { CircularProgress } from '@mui/material';
+
+// import { locations } from '../data/locations';
+
+import 'leaflet/dist/leaflet.css'; // Import Leaflet styles
+
 import Map from '../components/Map';
 
 // --- Import ALL floor SVGs ---
@@ -76,29 +82,18 @@ export const Navigation = () => {
 
   const handleNavigate = () => {
     if (from && to) {
-      // Determine Start Floor and Update Map
-      const startLocation = locations.find(loc => loc.roomName === from);
-      if (startLocation && startLocation.floor) {
-          // Extract floor key
-          const floorKey = startLocation.floor;
-          const newMapPath = floorMapPaths[floorKey];
-          if (newMapPath) {
-              console.log(`Switching map to Floor ${floorKey}`);
-              setCurrentMapPath(newMapPath); // Update the map SVG path state
-          } else {
-              console.warn(`Map SVG path not found for floor key: ${floorKey}`);
-              setMessage(`Cannot display map for floor ${floorKey}.`);
-              // Optionally default or return
-              // setCurrentMapPath(floorMapPaths['B']); // Default to B?
-              // return;
-          }
-      } else {
-          console.warn("Could not determine floor for the starting location:", from);
-          setMessage("Could not determine the floor for the starting location.");
-          // return;
-      }
+    
+    const fromRoom = locations.find((room) => room.roomName === from);
+    const toRoom = locations.find((room) => room.roomName === to);
 
-      dispatch(addRoute({ from, to }));
+    const floorFrom = fromRoom?.floor || '';
+    const floorTo = toRoom?.floor || '';
+
+    const newRoute = { from, to, floorFrom, floorTo };
+
+      setZoom(4);
+      dispatch(saveRouteToDB(newRoute));
+
       setLoading(true);
       setMessage('');
       setPathCoordinates([]); // Clear previous path coordinates

@@ -8,8 +8,8 @@ export const DashboarButtons = () => {
       <Box
         sx={{ maxWidth: '600px', margin: '70px 5px' }}
         display="grid"
-        gridTemplateColumns="repeat(3, 1fr)"
-        gap={3}
+        gridTemplateColumns= {{xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)'}}
+        gap={{xs: 4, md: 3}}
         mt={3}
         alignSelf="center"
         justifyContent="center"
