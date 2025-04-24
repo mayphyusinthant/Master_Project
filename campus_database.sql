@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 24, 2025 at 12:42 PM
+-- Generation Time: Apr 24, 2025 at 02:17 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.1.25
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -52,11 +52,42 @@ INSERT INTO `campus_info` (`campus_id`, `campus_name`, `location`, `description`
 CREATE TABLE `class_schedule_info` (
   `schedule_id` int(11) NOT NULL,
   `room_id` int(11) NOT NULL,
-  `start_date_time` int(11) NOT NULL,
-  `end_date_time` int(11) NOT NULL,
+  `start_date_time` datetime NOT NULL,
+  `end_date_time` datetime NOT NULL,
   `schedule_type` enum('Lecture Session','Practical Session','Exam','Meeting','ENSA Event','Other Event','Presentation / Viva') NOT NULL COMMENT 'Schedule for room can be Lecture, Practical, Exam, Meeting, ENSA event and so on.',
-  `status` enum('Available','Unavailable','Repairing') NOT NULL COMMENT 'Status field describes whether the room is available, unavailable or closed. This helps admin to assign each room for any class or event at particular time.'
+  `status` enum('Available','Unavailable','Repairing') NOT NULL COMMENT 'Status field describes whether the room is available, unavailable or closed. This helps admin to assign each room for any class or event at particular time.',
+  `title` varchar(255) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `class_schedule_info`
+--
+
+INSERT INTO `class_schedule_info` (`schedule_id`, `room_id`, `start_date_time`, `end_date_time`, `schedule_type`, `status`, `title`) VALUES
+(1, 276, '2025-04-24 14:12:00', '2025-04-24 15:42:00', 'Meeting', 'Available', 'rfrfrfrrfr');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `navigation_history`
+--
+
+CREATE TABLE `navigation_history` (
+  `id` int(11) NOT NULL,
+  `from_room` varchar(100) DEFAULT NULL,
+  `to_room` varchar(100) DEFAULT NULL,
+  `floor_from` varchar(10) DEFAULT NULL,
+  `floor_to` varchar(10) DEFAULT NULL,
+  `timestamp` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `navigation_history`
+--
+
+INSERT INTO `navigation_history` (`id`, `from_room`, `to_room`, `floor_from`, `floor_to`, `timestamp`) VALUES
+(8, 'L20', 'Stairs20', 'Floor C', 'Floor C', '2025-04-24 01:02:45'),
+(9, 'C4', 'C4', 'Floor C', 'Floor C', '2025-04-24 01:03:05');
 
 -- --------------------------------------------------------
 
@@ -79,12 +110,8 @@ CREATE TABLE `rooms_booking_info` (
 --
 
 INSERT INTO `rooms_booking_info` (`booking_id`, `room_id`, `start_date_time`, `end_date_time`, `status`, `student_id`, `title`) VALUES
-(1, 1, '2025-04-30 10:00:00', '2025-04-30 12:00:00', '', 40643456, 'SCRUM Meeting'),
-(2, 7, '2025-04-17 00:00:00', '2025-04-17 02:30:00', '', 40643456, 'SCRUM Meeting'),
-(3, 272, '2025-04-17 00:00:00', '2025-04-17 02:30:00', '', 40643456, 'SCRUM Meeting'),
-(4, 6, '2025-04-17 00:00:00', '2025-04-17 02:30:00', '', 40643451, 'SCRUM Meeting'),
-(5, 6, '2025-04-17 06:30:00', '2025-04-17 07:30:00', '', 40643451, 'SCRUM Meeting'),
-(10, 3, '2025-04-18 00:00:00', '2025-04-18 02:30:00', '', 4000000, 'SCRUM Meeting');
+(10, 3, '2025-04-18 00:00:00', '2025-04-18 02:30:00', '', 4000000, 'SCRUM Meeting'),
+(13, 269, '2025-04-24 13:11:00', '2025-04-24 16:11:00', '', 0, 'vrvr');
 
 -- --------------------------------------------------------
 
@@ -774,6 +801,12 @@ ALTER TABLE `class_schedule_info`
   ADD KEY `room_id` (`room_id`);
 
 --
+-- Indexes for table `navigation_history`
+--
+ALTER TABLE `navigation_history`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `rooms_booking_info`
 --
 ALTER TABLE `rooms_booking_info`
@@ -801,13 +834,19 @@ ALTER TABLE `campus_info`
 -- AUTO_INCREMENT for table `class_schedule_info`
 --
 ALTER TABLE `class_schedule_info`
-  MODIFY `schedule_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `schedule_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `navigation_history`
+--
+ALTER TABLE `navigation_history`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `rooms_booking_info`
 --
 ALTER TABLE `rooms_booking_info`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `room_info`

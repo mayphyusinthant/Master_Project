@@ -159,10 +159,9 @@ const Map = ({ map, pathCoordinates }) => {
 
 
   return (
-    <MapContainer
+    <Box
       center={[0, 0]} // Centered at (0,0) since it's an indoor map
-      zoom={zoom}
-      scrollWheelZoom={true}
+  
       style={{ height: '600px', width: '100%', border: '2px solid black', marginBottom: 25 }}    >
       {/* Display Loading Indicator */}
       {isLoading && <CircularProgress />}
