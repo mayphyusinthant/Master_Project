@@ -139,29 +139,27 @@ const Map = ({ map, pathCoordinates }) => {
       width="90%"
       maxWidth="900px"
       maxHeight="75vh"
-      border="1px solid #ccc" // Subtle border
-      borderRadius="8px" // Rounded corners
-      overflow="auto" // Add scrollbars IF content still overflows
-      bgcolor="#ffffff" // White background for the map area
-      mt={2} // Margin top for spacing
-      mb={2} // Margin bottom for spacing
+      border="1px solid #ccc"
+      borderRadius="8px"
+      overflow="auto"
+      bgcolor="#ffffff"
+      mt={2}
+      mb={2}
       sx={{ // Use sx prop for responsive/dynamic styling
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         position: 'relative',
-        minHeight: '400px', // Ensure container has some height while loading/error
+        minHeight: '400px',
         '& svg': { // Style the SVG element itself via CSS
           display: 'block',
-          width: '100%', // Make SVG fill container width
-          height: 'auto', // Maintain aspect ratio based on width (requires viewBox!)
-          maxWidth: '100%', // Ensure it doesn't overflow its container width
-          maxHeight: 'calc(100vh - 2px)', // Ensure SVG respects container maxHeight (minus border)
+          width: '100%',
+          height: 'auto',
+          maxWidth: '100%',
+          maxHeight: 'calc(100vh - 2px)',
         }
       }}
-      // Removed invalid 'center' prop and fixed 'style' prop
     >
-      {/* --- Child elements remain the same --- */}
       {isLoading && <CircularProgress />}
       {!isLoading && error && (
           <Typography color="error" textAlign="center" padding={2}>
