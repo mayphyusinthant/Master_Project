@@ -135,13 +135,13 @@ const Map = ({ map, pathCoordinates }) => {
 
   return (
     <Box
-      ref={svgContainerRef} // Attach the ref to this container
-      width="90%" // Responsive width
-      maxWidth="900px" // Max width for larger screens
-      maxHeight="75vh" // Limit height
+      ref={svgContainerRef}
+      width="90%"
+      maxWidth="900px"
+      maxHeight="75vh"
       border="1px solid #ccc" // Subtle border
       borderRadius="8px" // Rounded corners
-      //overflow="auto" // Add scrollbars IF content still overflows
+      overflow="auto" // Add scrollbars IF content still overflows
       bgcolor="#ffffff" // White background for the map area
       mt={2} // Margin top for spacing
       mb={2} // Margin bottom for spacing
@@ -156,7 +156,7 @@ const Map = ({ map, pathCoordinates }) => {
           width: '100%', // Make SVG fill container width
           height: 'auto', // Maintain aspect ratio based on width (requires viewBox!)
           maxWidth: '100%', // Ensure it doesn't overflow its container width
-          maxHeight: 'calc(75vh - 4px)', // Ensure SVG respects container maxHeight (minus border)
+          maxHeight: 'calc(100vh - 2px)', // Ensure SVG respects container maxHeight (minus border)
         }
       }}
       // Removed invalid 'center' prop and fixed 'style' prop
