@@ -5,7 +5,7 @@ import { saveRouteToDB, setSelectedRoute } from '../features/history/historySlic
 
 // import { locations } from '../data/locations';
 
-import 'leaflet/dist/leaflet.css'; // Import Leaflet styles
+//import 'leaflet/dist/leaflet.css'; // Import Leaflet styles
 
 import Map from '../components/Map';
 

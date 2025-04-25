@@ -135,32 +135,47 @@ const Map = ({ map, pathCoordinates }) => {
 
   return (
     <Box
-      center={[0, 0]} // Centered at (0,0) since it's an indoor map
-  
-      style={{ height: '600px', width: '100%', border: '2px solid black', marginBottom: 25 }}    >
-      {/* Display Loading Indicator */}
+      ref={svgContainerRef} // Attach the ref to this container
+      width="90%" // Responsive width
+      maxWidth="900px" // Max width for larger screens
+      maxHeight="75vh" // Limit height
+      border="1px solid #ccc" // Subtle border
+      borderRadius="8px" // Rounded corners
+      //overflow="auto" // Add scrollbars IF content still overflows
+      bgcolor="#ffffff" // White background for the map area
+      mt={2} // Margin top for spacing
+      mb={2} // Margin bottom for spacing
+      sx={{ // Use sx prop for responsive/dynamic styling
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
+        minHeight: '400px', // Ensure container has some height while loading/error
+        '& svg': { // Style the SVG element itself via CSS
+          display: 'block',
+          width: '100%', // Make SVG fill container width
+          height: 'auto', // Maintain aspect ratio based on width (requires viewBox!)
+          maxWidth: '100%', // Ensure it doesn't overflow its container width
+          maxHeight: 'calc(75vh - 4px)', // Ensure SVG respects container maxHeight (minus border)
+        }
+      }}
+      // Removed invalid 'center' prop and fixed 'style' prop
+    >
+      {/* --- Child elements remain the same --- */}
       {isLoading && <CircularProgress />}
-
-      {/* Display Error Message */}
       {!isLoading && error && (
           <Typography color="error" textAlign="center" padding={2}>
               {error}
           </Typography>
       )}
-
-      {/* Render the SVG content using dangerouslySetInnerHTML */}
-      {/* This should only render when content is loaded and there's no error */}
       {!isLoading && !error && svgContent && (
-        // Using a key based on map prop helps React re-render correctly if SVG source changes
         <div key={map} style={{width: '100%', height: '100%'}} dangerouslySetInnerHTML={{ __html: svgContent }} />
       )}
-      {/* Add message if SVG loaded but is empty */}
       {!isLoading && !error && !svgContent && map && (
           <Typography color="textSecondary" textAlign="center" padding={2}>
               Map loaded but content appears empty. Check SVG file.
           </Typography>
       )}
-       {/* Add message if no map was specified */}
        {!map && (
             <Typography color="textSecondary" textAlign="center" padding={2}>
                 Please select a floor or route to display the map.

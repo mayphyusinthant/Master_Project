@@ -97,9 +97,9 @@ export const LibraryInfo = () => {
       <PageTitle title="Library Information" />
       
       {/* Map container with appropriate aspect ratio and padding */}
-      <Box 
+      <Box
         ref={mapContainerRef}
-        sx={{ 
+        sx={{
           width: '100%',
           height: 'auto', // Fixed height viewport units
           minHeight: '500px', // Minimum height to ensure visibility
@@ -119,12 +119,12 @@ export const LibraryInfo = () => {
       </Box>
 
       {/* Date-Time Controls */}
-      <Box 
-        display="flex" 
-        flexDirection={{ xs: 'column', md: 'row' }} 
+      <Box
+        display="flex"
+        flexDirection={{ xs: 'column', md: 'row' }}
         alignItems={{ xs: 'stretch', md: 'center' }}
         justifyContent={{ xs: 'center', md: 'space-between' }}
-        gap={2} 
+        gap={2}
         mb={3}
         p={2}
         sx={{
