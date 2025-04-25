@@ -45,7 +45,7 @@ export const RoomBooking = () => {
   const [endbookingDate, setEndBookingDate] = useState(endDateTime || '');
   const [durationSet, setDuration] = useState(duration || '');
   const [roomTypes, setRoomTypes] = useState([]);
-  // const [rooms, setRooms] = useState([]);
+  const [rooms, setRooms] = useState([]);
   const [fullRoomData, setFullRoomData] = useState([]);
   const [userBookings, setUserBookings] = useState([]);
   const [lastFetched, setLastFetched] = useState('');
