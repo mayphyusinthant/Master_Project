@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from "react-router-dom";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-
+import DialogBox from "../components/DialogBox"
 import {
   Box,
   Autocomplete,
@@ -12,7 +12,6 @@ import {
   Typography,
   List,
   ListItem,
-  ListItemText,
   IconButton,
   Card,
   FormControl,
@@ -23,12 +22,9 @@ import {
 } from '@mui/material';
 
 import { Delete } from '@mui/icons-material';
-import { v4 as uuidv4 } from 'uuid'; // Import UUID for unique booking IDs
 
 export const RoomBooking = () => {
-  const bookings = useSelector((state) => state.roomBooking.bookings);
   const location = useLocation();
-  const dispatch = useDispatch();
 
   const {
     roomId,
@@ -39,6 +35,8 @@ export const RoomBooking = () => {
     duration,
   } = location.state || {};
 
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
   const [bookingTitle, setBookingTitle] = useState('');
   const [matriculationNumber, setMatriculationNumber] = useState('');
   const [selectedRoom, setSelectedRoom] = useState(roomName || '');
@@ -47,9 +45,10 @@ export const RoomBooking = () => {
   const [endbookingDate, setEndBookingDate] = useState(endDateTime || '');
   const [durationSet, setDuration] = useState(duration || '');
   const [roomTypes, setRoomTypes] = useState([]);
-  const [rooms, setRooms] = useState([]);
+  // const [rooms, setRooms] = useState([]);
   const [fullRoomData, setFullRoomData] = useState([]);
   const [userBookings, setUserBookings] = useState([]);
+  const [lastFetched, setLastFetched] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -61,16 +60,20 @@ export const RoomBooking = () => {
       });
   
       if (response.ok) {
-        alert('Booking removed successfully!');
-        // Refresh the bookings list after deletion
+        setIsDialogOpen(true);
+        setDialogMessage("Booking removed successfully!");
+
         fetchUserBookings();
       } else {
         const errorData = await response.json();
-        alert(errorData.error || 'Failed to remove booking.');
+        setIsDialogOpen(true);
+        setDialogMessage("Failed to remove booking.");
       }
     } catch (error) {
       console.error('Error removing booking:', error);
-      alert('An error occurred while removing the booking.');
+      setIsDialogOpen(true);
+      setDialogMessage("An error occurred while removing the booking.");
+      
     }
   };
 
@@ -93,10 +96,39 @@ export const RoomBooking = () => {
   };
 
 
-
-  useEffect(() => {
-    fetchUserBookings();
-  }, [matriculationNumber]);
+  const fetchAvailableRooms = async () => {
+    if (startbookingDate && endbookingDate) {
+      setIsLoading(true);
+      const params = new URLSearchParams({
+        start_date_time: startbookingDate,
+        end_date_time: endbookingDate,
+        roomType: selectedType,
+      });
+  
+      const url = `http://localhost:5000/api/available_library_rooms?${params}`;
+      console.log("Fetching from URL:", url);
+  
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+  
+        const roomValues = data.map(item => item.roomName);
+        setRooms(roomValues);
+        // console.log("Room Names:", roomValues);
+  
+        setFullRoomData(data);
+      } catch (error) {
+        console.error('Error fetching rooms:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      console.log("Start or end date not set yet. Skipping fetch.");
+    }
+  };
 
 
   useEffect(() => {
@@ -104,7 +136,6 @@ export const RoomBooking = () => {
     fetch('http://localhost:5000/api/library_room_types')
       .then((response) => response.json())
       .then((data) => {
-        // Extract just the type values from the array of objects
         const typeValues = data.map(item => item.type);
         setRoomTypes(typeValues);
         console.log("Room Types:", typeValues);
@@ -118,48 +149,22 @@ export const RoomBooking = () => {
 
 
   useEffect(() => {
-    // Only fetch if both start and end dates are available
-    if (startbookingDate && endbookingDate) {
-      setIsLoading(true);
-      // Encode parameters for URL
-      const params = new URLSearchParams({
-        start_date_time: startbookingDate,
-        end_date_time: endbookingDate,
-        roomType: selectedType,
-      });
-      
-      // Append parameters to the URL
-      const url = `http://localhost:5000/api/available_library_rooms?${params}`;
-      
-      console.log("Fetching from URL:", url);
-      
-      fetch(url)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          
-          // Extract room values from the response
-          const roomValues = data.map(item => item.roomName);
-          setRooms(roomValues);
-          console.log("Room Names:", roomValues);
-          
-          // You might also want to store the full room objects for later use
-          setFullRoomData(data);
-          
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching rooms:', error);
-          setIsLoading(false);
-        });
-    } else {
-      console.log("Start or end date not set yet. Skipping fetch.");
+    if (startbookingDate && endbookingDate && selectedType) {
+      fetchAvailableRooms();
     }
   }, [startbookingDate, endbookingDate, selectedType]); 
+
+
+  useEffect(() => {
+    console.log("Testing - ", startbookingDate, endbookingDate);
+    if (/^\d{8}$/.test(matriculationNumber) && matriculationNumber !== lastFetched) {
+      fetchUserBookings();
+      setLastFetched(matriculationNumber);
+    } else if (matriculationNumber.length < 8) {
+      setUserBookings([]);
+      setLastFetched(matriculationNumber);
+    }
+  }, [matriculationNumber]);
 
 
   const handleDurationChange = (event) => {
@@ -208,23 +213,34 @@ export const RoomBooking = () => {
       
         let result = {};
         try {
-          result = await response.json(); // try parsing only if response has content
+          result = await response.json();
         } catch (jsonError) {
           console.warn('No JSON response body:', jsonError);
         }
       
         if (response.ok) {
-          alert(result.message || 'Booking successful!');
+          setIsDialogOpen(true);
+          setDialogMessage("Booking Successful !");
+         
+
           setBookingTitle('');
           setStartBookingDate('');
           setEndBookingDate('');
-          // Refresh bookings using the existing function
-          fetchUserBookings();        } else {
-          alert(result.error || 'Booking failed!');
+          setSelectedRoom('');
+          setDuration('');
+          setFullRoomData([]);
+          fetchUserBookings();        
+        } else {
+          console.error(result.error || 'Booking failed!');
+          setIsDialogOpen(true);
+          setDialogMessage("Booking Failed !");
+         
         }
       } catch (error) {
         console.error("Booking error:", error);
-        alert("An error occurred while booking.");
+        setIsDialogOpen(true);
+        setDialogMessage("Booking Error Occurs !");
+         
       }
     }
   };
@@ -233,6 +249,12 @@ export const RoomBooking = () => {
 
     return (
       <Box display="flex" flexDirection="column" alignItems="center" gap={3} width="100%" mt={3}>
+
+        <DialogBox 
+            open={isDialogOpen} 
+            message={dialogMessage} 
+            onClose={() => setIsDialogOpen(false)} 
+          />
         <Typography variant="h4">Room Booking</Typography>
   
         {/* Room Type Selection */}
@@ -241,7 +263,7 @@ export const RoomBooking = () => {
           value={selectedType}
           onChange={(event, newValue) => {
             setSelectedType(newValue);
-            setSelectedRoom(''); // Reset room selection when type changes
+            setSelectedRoom(''); 
           }}
           renderInput={(params) => (
             <TextField 
@@ -274,8 +296,9 @@ export const RoomBooking = () => {
               helperText={isLoading ? "Loading available rooms..." : ""}
             />
           )}
+          noOptionsText="Select Booking Date & Time to See Available Rooms"
           sx={{ width: 350 }}
-          disabled={!startbookingDate || !endbookingDate}
+          // disabled={!startbookingDate || !endbookingDate}
           loading={isLoading}
         />
   
@@ -314,7 +337,7 @@ export const RoomBooking = () => {
                 textAlign: 'left',
                 '& .MuiSelect-select': {
                   textAlign: 'left',
-                  paddingLeft: '14px' // optional, adjust padding if needed
+                  paddingLeft: '14px' 
                 }
               }}
             
@@ -341,7 +364,6 @@ export const RoomBooking = () => {
         <Button
           variant="contained"
           onClick={handleBooking}
-          // disabled={!selectedRoom || !bookingTitle || !startbookingDate}
         >
           Book Room
         </Button> 
