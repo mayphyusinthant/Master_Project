@@ -81,7 +81,8 @@ export const Navigation = () => {
 
   const handleNavigate = () => {
     if (from && to) {
-    
+
+    //const startLocation = locations.find(loc => loc.roomName === from);
     const fromRoom = locations.find((room) => room.roomName === from);
     const toRoom = locations.find((room) => room.roomName === to);
 
@@ -89,6 +90,26 @@ export const Navigation = () => {
     const floorTo = toRoom?.floor || '';
 
     const newRoute = { from, to, floorFrom, floorTo };
+
+    if (fromRoom && fromRoom.floor) {
+          // Extract floor key
+          const floorKey = fromRoom.floor;
+          const newMapPath = floorMapPaths[floorKey];
+          if (newMapPath) {
+              console.log(`Switching map to Floor ${floorKey}`);
+              setCurrentMapPath(newMapPath); // Update the map SVG path state
+          } else {
+              console.warn(`Map SVG path not found for floor key: ${floorKey}`);
+              setMessage(`Cannot display map for floor ${floorKey}.`);
+              // Optionally default or return
+              // setCurrentMapPath(floorMapPaths['B']); // Default to B?
+              // return;
+          }
+      } else {
+          console.warn("Could not determine floor for the starting location:", from);
+          setMessage("Could not determine the floor for the starting location.");
+          // return;
+      }
 
       dispatch(saveRouteToDB(newRoute));
 
