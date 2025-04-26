@@ -18,11 +18,13 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
   },
 }));
 
-function InteractiveMap({ map, roomData = [] , setSelectedRoom, setSelectedType, setDescription}) {
+function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, setSelectedType, setDescription}) {
   const containerRef = useRef();
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [tooltipContent, setTooltipContent] = useState('');
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  
+
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -46,6 +48,7 @@ function InteractiveMap({ map, roomData = [] , setSelectedRoom, setSelectedType,
 
       // Ensure the SVG fills the container
       const svg = d3.select(containerRef.current).select('svg');
+      
       svg
         .attr('width', '100%')
         .attr('height', '100%')
@@ -135,10 +138,61 @@ function InteractiveMap({ map, roomData = [] , setSelectedRoom, setSelectedType,
           elementToUnhighlight.classed("highlight", false);
           setTooltipOpen(false);
         });
+        highlightSelectedRoom();
     }).catch(error => {
       console.error("Error loading SVG:", error);
     });
-  }, [map, roomData]);
+  }, [map, roomData, selectedRoom]);
+
+  const highlightSelectedRoom = () => {
+    if (!selectedRoom) return;
+  
+    // Clear previous highlights
+    d3.select(containerRef.current)
+      .selectAll('.highlight')
+      .classed('highlight', false);
+  
+    const selectedRoomName = typeof selectedRoom === 'string'
+      ? selectedRoom.split(' (')[0]
+      : selectedRoom.roomName;
+  
+    console.log('Trying to highlight and tooltip for:', selectedRoomName);
+  
+    // Find the element
+    const element = d3.select(containerRef.current)
+      .select(`#${selectedRoomName}`)
+      .node();
+  
+    if (element) {
+      const highlightElement = d3.select(element.closest('g') || element);
+      highlightElement.classed("highlight", true);
+  
+      // 🛠 Show tooltip too
+      const matchedRoom = roomData.find(room =>
+        room.roomId == selectedRoomName || room.roomName == selectedRoomName
+      );
+  
+      if (matchedRoom) {
+        const content = `
+          <strong>${matchedRoom.roomName || 'Room'}</strong><br>
+          <strong>Room Type:</strong> ${matchedRoom.type || 'N/A'}<br>
+          ${matchedRoom.floor || 'N/A'}<br><br>
+          ${matchedRoom.description ? `<strong>Description</strong><br>${matchedRoom.description}` : ''}
+        `;
+        setTooltipContent(content);
+        
+        // Find room center coordinates
+        const bbox = element.getBoundingClientRect();
+        setTooltipPosition({
+          x: bbox.left + bbox.width / 2,
+          y: bbox.top,
+        });
+  
+        setTooltipOpen(true);
+      }
+    }
+  };
+  
 
   return (
     <Box

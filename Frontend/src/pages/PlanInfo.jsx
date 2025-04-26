@@ -36,6 +36,7 @@ export const PlanInfo = () => {
   const [selectedType, setSelectedType] = useState('');
   const [selectedRoom, setSelectedRoom] = useState(null); 
   const [selectedFloor, setSelectedFloor] = useState('A');
+  const [selectedMap, setSelectedMap] = useState(floorMaps['A']);
   const [roomTypes, setRoomTypes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fullRoomData, setFullRoomData] = useState([]);
@@ -170,7 +171,12 @@ export const PlanInfo = () => {
             setSelectedRoom(newValue);
             // If a room is selected, also set the floor to match that room
             if (newValue && newValue.floor) {
-              setSelectedFloor(newValue.floor.toUpperCase());
+              
+              const floorLetter = newValue.floor.replace(/floor\s*/i, '').toUpperCase();
+              
+              setSelectedFloor(floorLetter);
+              setSelectedMap(floorMaps[floorLetter]);
+             
             }
           }}
           renderInput={(params) => (
@@ -232,7 +238,12 @@ export const PlanInfo = () => {
               <Button
                 key={floor}
                 variant={selectedFloor === floor ? 'contained' : 'outlined'}
-                onClick={() => setSelectedFloor(floor)}
+                onClick={() => {
+                  
+                  setSelectedFloor(floor);
+                  setSelectedMap(floorMaps[floor]); 
+                  
+                }}
               >
                 {floor}
               </Button>
@@ -242,8 +253,9 @@ export const PlanInfo = () => {
           {/* Map Component - Full width */}
           <Box sx={{ width: '100%' }}>
             <Map 
-              map={floorMaps[selectedFloor]} 
-              roomData={fullRoomData} 
+              map={selectedMap}
+              roomData={fullRoomData}
+              selectedRoom={selectedRoom} 
               setSelectedRoom={setSelectedRoom}
               setSelectedType={setSelectedType}
               setDescription={setDescription}
