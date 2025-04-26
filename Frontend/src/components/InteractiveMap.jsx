@@ -18,11 +18,13 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
   },
 }));
 
-function InteractiveMap({ map, roomData = [] , setSelectedRoom, setSelectedType, setDescription}) {
+function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, setSelectedType, setDescription}) {
   const containerRef = useRef();
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [tooltipContent, setTooltipContent] = useState('');
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  
+
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -46,6 +48,7 @@ function InteractiveMap({ map, roomData = [] , setSelectedRoom, setSelectedType,
 
       // Ensure the SVG fills the container
       const svg = d3.select(containerRef.current).select('svg');
+      
       svg
         .attr('width', '100%')
         .attr('height', '100%')
@@ -138,7 +141,7 @@ function InteractiveMap({ map, roomData = [] , setSelectedRoom, setSelectedType,
     }).catch(error => {
       console.error("Error loading SVG:", error);
     });
-  }, [map, roomData]);
+  }, [map, roomData, selectedRoom]);
 
   return (
     <Box
