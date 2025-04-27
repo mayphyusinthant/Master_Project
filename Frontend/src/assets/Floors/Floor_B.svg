@@ -193,7 +193,7 @@
     </style>
   </defs>
 
-    <polyline id="polyline1" class="cls-6" points="357.47 385.64 357.47 398.24 348.65 398.24 348.65 385.64 357.47 385.64"/>
+      <polyline id="polyline1" class="cls-6" points="357.47 385.64 357.47 398.24 348.65 398.24 348.65 385.64 357.47 385.64"/>
     <polyline id="polyline2" class="cls-6" points="336.23 385.64 348.05 385.64 348.05 398.24 336.23 398.24 336.23 385.64"/>
     <line id="line2" class="cls-4" x1="348.65" y1="398.24" x2="348.65" y2="385.64"/>
     <line id="line3" class="cls-4" x1="348.05" y1="398.24" x2="348.05" y2="385.64"/>
@@ -9333,7 +9333,7 @@
     <polyline id="polyline6614" class="cls-4" points="883.07 438.26 898.79 438.26 898.79 432.62"/>
   </g>
 
-  <rect id="walkable" data-name="walkable" class="cls-10" x="971.89" y="120.62" width="4.7" height="4.7" cost="1"/>
+    <rect id="walkable" data-name="walkable" class="cls-10" x="971.89" y="120.62" width="4.7" height="4.7" cost="1"/>
   <rect id="walkable" data-name="walkable" class="cls-10" x="976.59" y="120.62" width="4.7" height="4.7" cost="1"/>
   <rect id="walkable" data-name="walkable" class="cls-10" x="957.79" y="120.62" width="4.7" height="4.7" cost="1"/>
   <rect id="walkable" data-name="walkable" class="cls-10" x="962.49" y="120.62" width="4.7" height="4.7" cost="1"/>
@@ -10718,27 +10718,27 @@
   <rect id="B19" data-name="B19" class="cls-10" x="981.29" y="430.82" width="4.7" height="4.7" cost="0"/>
   <rect id="B20b" data-name="B20b" class="cls-10" x="901.39" y="430.82" width="4.7" height="4.7" cost="0"/>
 
-  <rect id="elevator" data-name="elevator" class="cls-10" x="1000.09" y="130.02" width="4.7" height="4.7" cost="0.8"/>
-  <rect id="elevator" data-name="elevator" class="cls-10" x="957.79" y="125.32" width="4.7" height="4.7" cost="0.8"/>
-  <rect id="elevator" data-name="elevator" class="cls-10" x="642.89" y="365.02" width="4.7" height="4.7" cost="0.8"/>
-  <rect id="elevator" data-name="elevator" class="cls-10" x="149.39" y="285.12" width="4.7" height="4.7" cost="0.8"/>
-  <rect id="elevator" data-name="elevator" class="cls-10" x="285.69" y="350.92" width="4.7" height="4.7" cost="0.8"/>
-  <rect id="elevator" data-name="elevator" class="cls-10" x="290.39" y="346.22" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorJKCC3" data-name="elevatorJKCC3" class="cls-10" x="1000.09" y="130.02" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorJKCC2" data-name="elevatorJKCC2" class="cls-10" x="957.79" y="125.32" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorJKCC" data-name="elevatorJKCC" class="cls-10" x="642.89" y="365.02" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorLIBRARY" data-name="elevatorLIBRARY" class="cls-10" x="149.39" y="285.12" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorMAIN2" data-name="elevatorMAIN2" class="cls-10" x="285.69" y="350.92" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorMAIN1" data-name="elevatorMAIN1" class="cls-10" x="290.39" y="346.22" width="4.7" height="4.7" cost="0.8"/>
 
-  <rect id="stairs" data-name="stairs" class="cls-10" x="318.59" y="115.92" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="97.69" y="275.72" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="299.79" y="369.72" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="323.29" y="388.52" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="346.79" y="454.32" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="666.39" y="482.52" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="666.39" y="473.12" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="671.09" y="341.52" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="699.29" y="153.52" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="971.89" y="125.32" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="1032.99" y="195.82" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="976.59" y="369.72" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="689.89" y="144.12" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-10" x="370.29" y="365.02" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsLIBRARY2" data-name="stairsLIBRARY2" class="cls-10" x="318.59" y="115.92" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsLIBRARY1" data-name="stairsLIBRARY1" class="cls-10" x="97.69" y="275.72" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsFRONT3" data-name="stairsFRONT3" class="cls-10" x="299.79" y="369.72" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsFRONT2" data-name="stairsFRONT2" class="cls-10" x="323.29" y="388.52" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsFOOD" data-name="stairsFOOD" class="cls-10" x="346.79" y="454.32" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC8" data-name="stairsJKCC8" class="cls-10" x="666.39" y="482.52" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC7" data-name="stairsJKCC7" class="cls-10" x="666.39" y="473.12" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC6" data-name="stairsJKCC6" class="cls-10" x="671.09" y="341.52" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC5" data-name="stairsJKCC5" class="cls-10" x="699.29" y="153.52" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC4" data-name="stairsJKCC4" class="cls-10" x="971.89" y="125.32" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC3" data-name="stairsJKCC3" class="cls-10" x="1032.99" y="195.82" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC2" data-name="stairsJKCC2" class="cls-10" x="976.59" y="369.72" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC" data-name="stairsJKCC" class="cls-10" x="689.89" y="144.12" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsFRONT" data-name="stairsFRONT" class="cls-10" x="370.29" y="365.02" width="4.7" height="4.7" cost="2"/>
 
   <rect id="obstacle" data-name="obstacle" class="cls-10" x="971.89" y="115.92" width="4.7" height="4.7" cost="1000"/>
   <rect id="obstacle" data-name="obstacle" class="cls-10" x="976.59" y="115.92" width="4.7" height="4.7" cost="1000"/>

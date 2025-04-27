@@ -6,7 +6,6 @@ import os
 import networkx as nx
 import traceback
 
-
 # Import map parsing and A* functions
 try:
     from map_parser import create_campus_graph
@@ -15,7 +14,7 @@ try:
 
     # Enable navigation functionality
     FUNCTIONS_LOADED = True
-    print("Successfully imported map parsing, A*, and navigation_utils functions.")
+    #print("Successfully imported map parsing, A*, and navigation_utils functions.")
 except ImportError as e:
     print(f"ERROR: Failed to import required modules: {e}")
     print("Navigation functionality will be disabled.")
@@ -31,7 +30,7 @@ except ImportError as e:
 CAMPUS_GRAPH = None
 
 def initialize_graphs():
-    """ Parse all SVG maps and creates a combined campus graph on startup """
+    """ Parse all SVG maps and create a combined campus graph on startup """
     global CAMPUS_GRAPH
     if not FUNCTIONS_LOADED:
         print("Skipping graph initialization due to import errors.")
@@ -40,7 +39,7 @@ def initialize_graphs():
 
     print("Initializing combined campus graph...")
     try:
-        # Specify the directory containing SVG files
+        # Directory containing SVG files
         base_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in locals() else '.'
         map_directory = os.path.join(base_dir, "static")
         print(f"Looking for maps in: {map_directory}")
@@ -63,9 +62,6 @@ def initialize_graphs():
 app = Flask(__name__)
 
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
-
-# Call initialisation when app starts
-initialize_graphs()
 
 # MySQL Configuration
 app.config['MYSQL_HOST'] = 'localhost'
@@ -101,7 +97,6 @@ def campus_mgmt():
     total_pages = (total_rows // per_page) + (1 if total_rows % per_page > 0 else 0)  
     return render_template('campus_info.html', rooms=rooms, page=page, total_pages=total_pages)
 
-
 @app.route('/users')
 def users():
     cur = mysql.connection.cursor()
@@ -131,126 +126,186 @@ def get_rooms():
 
     return jsonify(rooms)
 
-
 @app.route('/api/navigate', methods=['POST'])
 def handle_navigation():
-    # Check if core functions loaded and graph is initialized
-    if not FUNCTIONS_LOADED:
-         return jsonify({"status": "error", "message": "Navigation system unavailable due to import errors."}), 503
-    if CAMPUS_GRAPH is None or not isinstance(CAMPUS_GRAPH, nx.Graph):
-         return jsonify({"status": "error", "message": "Navigation map data is not available."}), 503
+    """ Handles navigation requests, performs A* search, and returns segmented path. """
+    print(f"\n--- Received Navigation Request ---")
+    response = None
 
-    data = request.get_json()
-    if not data:
-        return jsonify({"status": "error", "message": "Invalid request body"}), 400
-
-    # Initial and goal inputs
-    start_room_input = data.get('from')
-    goal_room_input = data.get('to')
-
-    if not start_room_input or not goal_room_input:
-        return jsonify({"status": "error", "message": "Missing 'from' or 'to' room ID"}), 400
-
-    print(f"\n--- Navigation Request ---")
-    print(f"From: '{start_room_input}' To: '{goal_room_input}'")
-
-    # Fetch Room Details from DB
-    from_room_details = None
-    to_room_details = None
     try:
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT room_id, room_name, floor, x_coordinate, y_coordinate FROM room_info WHERE room_name = %s", (start_room_input,))
-        from_row = cur.fetchone()
-        if from_row: from_room_details = {"roomId": from_row[0], "roomName": from_row[1], "floor_db": from_row[2], "x_coordinate": from_row[3], "y_coordinate": from_row[4]}
-        cur.execute("SELECT room_id, room_name, floor, x_coordinate, y_coordinate FROM room_info WHERE room_name = %s", (goal_room_input,))
-        to_row = cur.fetchone()
-        if to_row: to_room_details = {"roomId": to_row[0], "roomName": to_row[1], "floor_db": to_row[2], "x_coordinate": to_row[3], "y_coordinate": to_row[4]}
-        cur.close()
-    except Exception as e:
-        print(f"Database error fetching room details: {e}")
-        return jsonify({"status": "error", "message": "Error fetching room details."}), 500
+        if not FUNCTIONS_LOADED:
+             print("Error: Core navigation functions failed to load on startup.")
+             return jsonify({"status": "error", "message": "Navigation system core functions are unavailable."}), 503
+        if CAMPUS_GRAPH is None or not isinstance(CAMPUS_GRAPH, nx.Graph) or CAMPUS_GRAPH.number_of_nodes() == 0:
+             print("Error: Campus graph is not initialized or is empty.")
+             return jsonify({"status": "error", "message": "Navigation map data is not available or incomplete."}), 503
 
-    # Validate if rooms were found in DB
-    if not from_room_details or not to_room_details:
-        missing = []
-        if not from_room_details: missing.append(f"start room '{start_room_input}'")
-        if not to_room_details: missing.append(f"goal room '{goal_room_input}'")
-        msg = f"Could not find information for { ' and '.join(missing) } in the database."
-        print(f"Error: {msg}")
-        return jsonify({"status": "error", "message": msg}), 404
+        data = request.get_json()
+        if not data:
+            print("Error: Invalid request - Missing JSON body.")
+            return jsonify({"status": "error", "message": "Invalid request body (missing JSON)."}), 400
 
-    # Find Start/Goal Nodes within the COMBINED Graph
-    print(f"Searching campus graph for node matching '{start_room_input}'...")
-    start_node_id = find_node(start_room_input, CAMPUS_GRAPH)
-    print(f"Searching campus graph for node matching '{goal_room_input}'...")
-    goal_node_id = find_node(goal_room_input, CAMPUS_GRAPH)
+        start_room_input = data.get('from')
+        goal_room_input = data.get('to')
 
-    # Validate if nodes were found in the graph structure
-    if start_node_id is None:
-        msg = f"Start location '{start_room_input}' not found as a navigable area in the campus map graph."
-        print(f"Error: {msg}")
-        return jsonify({"status": "error", "message": msg}), 404
-    if goal_node_id is None:
-        msg = f"Goal location '{goal_room_input}' not found as a navigable area in the campus map graph."
-        print(f"Error: {msg}")
-        return jsonify({"status": "error", "message": msg}), 404
+        if not start_room_input or not goal_room_input:
+            print(f"Error: Missing 'from' [{start_room_input}] or 'to' [{goal_room_input}] in request.")
+            return jsonify({"status": "error", "message": "Missing 'from' or 'to' room name in request."}), 400
 
-    print(f"Found graph nodes: Start='{start_node_id}', Goal='{goal_node_id}'")
+        print(f"Attempting navigation From: '{start_room_input}' To: '{goal_room_input}'")
 
-    # Run A* Pathfinding on the COMBINED Graph
-    print("Running A* algorithm...")
-    path_node_ids = pathfinding_algo(start_node_id, goal_node_id, CAMPUS_GRAPH)
+        # Find Nodes in Graph
+        start_node_id = find_node(start_room_input, CAMPUS_GRAPH)
+        goal_node_id = find_node(goal_room_input, CAMPUS_GRAPH)
 
-    # Process and Return Result
-    if path_node_ids:
-        print(f"A* Path found with {len(path_node_ids)} steps.")
-        # Call create_navigation to get the formatted message
-        nav_message = "Navigation details unavailable."
-        if 'create_navigation' in globals():
+        # Validate if nodes were found
+        if start_node_id is None:
+            msg = f"Start location '{start_room_input}' not found as a navigable node in the graph."
+            print(f"Error: {msg}")
+            return jsonify({"status": "error", "message": msg}), 404
+        if goal_node_id is None:
+            msg = f"Goal location '{goal_room_input}' not found as a navigable node in the graph."
+            print(f"Error: {msg}")
+            return jsonify({"status": "error", "message": msg}), 404
+
+        print(f"Graph nodes identified: Start='{start_node_id}', Goal='{goal_node_id}'")
+
+        # --- Run A* Pathfinding ---
+        path_node_ids = None
+        print("Running A* pathfinding algorithm...")
+        path_node_ids = pathfinding_algo(start_node_id, goal_node_id, CAMPUS_GRAPH)
+
+        # Process Path or Handle No Path
+        if path_node_ids:
+            print(f"A* Path found with {len(path_node_ids)} nodes. Starting segmentation...")
+            # Segmentation Logic
             try:
-                from_nav = from_room_details.copy(); from_nav['floor'] = from_room_details['floor_db']
-                to_nav = to_room_details.copy(); to_nav['floor'] = to_room_details['floor_db']
-                nav_message = create_navigation(from_nav, to_nav)
-            except Exception as e: print(f"Error calling create_navigation: {e}")
+                path_segments = [] # Empty list to store path segments
 
-        # Format path for display AND extract coordinates
-        path_room_types = []
-        path_coordinates = []
-        try:
-            for node_id in path_node_ids:
-                 node_data = CAMPUS_GRAPH.nodes[node_id]
-                 path_room_types.append(node_data.get('type', 'Unknown'))
-                 # Extract center coordinates
-                 path_coordinates.append([
-                     node_data.get('center_x', 0.0),
-                     node_data.get('center_y', 0.0)
-                 ])
-            print(f"Path (types): {' -> '.join(path_room_types)}")
-        except KeyError as e:
-             print(f"Error accessing node data while formatting path: {e}")
-             return jsonify({
-                 "status": "success",
-                 "message": nav_message,
-                 "path_raw": path_node_ids,
-                 "error_details": "Path found, error formatting display path."
-             }), 200
+                # Handle the edge case where the path contains only one node (start is the same as goal)
+                if len(path_node_ids) == 1:
+                     node_id = path_node_ids[0]
+                     # Ensure the node exists in the graph before accessing its data
+                     if node_id not in CAMPUS_GRAPH.nodes: raise KeyError(f"Node '{node_id}' not found")
+                     node_data = CAMPUS_GRAPH.nodes[node_id]
+                     # Create a single segment containing just the start/goal node
+                     path_segments.append({
+                        "floor": node_data.get('floor', 'Unknown'),
+                        "coords": [[node_data.get('center_x', 0.0), node_data.get('center_y', 0.0)]],
+                        "node_ids": [node_id], "end_node_type": node_data.get('type', 'Unknown'), "end_node_id": node_id
+                     })
+                # Handle paths with multiple nodes
+                else:
+                    # Get data for the very first node in the path
+                    first_node_id = path_node_ids[0]
+                    if first_node_id not in CAMPUS_GRAPH.nodes: raise KeyError(f"Node '{first_node_id}' not found")
+                    first_node_data = CAMPUS_GRAPH.nodes[first_node_id]
+                    # Determine the starting floor and coordinates
+                    start_floor = first_node_data.get('floor', 'Unknown')
+                    start_coords = [first_node_data.get('center_x', 0.0), first_node_data.get('center_y', 0.0)]
 
-        # Return success response with path types and coordinates
-        return jsonify({
-            "status": "success",
-            "message": nav_message,
-            "path": path_room_types,
-            "path_coords": path_coordinates
-        }), 200
-    else:
-        # A* returned None
-        print("A* algorithm returned no path.")
-        return jsonify({
-            "status": "error",
-            "message": f"Sorry, no navigable path could be found between '{start_room_input}' and '{goal_room_input}'.",
-            "path": [],
-            "path_coords": [] # Empty list on failure
-        }), 404
+                    # Initialize the first segment dictionary with the starting node's data
+                    # 'end_node_type' and 'end_node_id' will be filled when the segment ends
+                    current_segment = {
+                        "floor": start_floor, "coords": [start_coords], "node_ids": [first_node_id],
+                        "end_node_type": None, "end_node_id": None
+                    }
+                    # Keep track of the floor of the previous node to detect changes
+                    last_floor = start_floor
+
+                    # Iterate through the path nodes, starting from the second node (index 1)
+                    for i in range(1, len(path_node_ids)):
+                        node_id = path_node_ids[i]
+                        # Ensure the current node exists in the graph
+                        if node_id not in CAMPUS_GRAPH.nodes: raise KeyError(f"Node '{node_id}' not found")
+                        node_data = CAMPUS_GRAPH.nodes[node_id]
+                        # Get the floor and coordinates of the current node
+                        current_floor = node_data.get('floor', last_floor)
+                        coords = [node_data.get('center_x', 0.0), node_data.get('center_y', 0.0)]
+
+                        # --- Core Segmentation Logic: Check if the floor has changed ---
+                        if current_floor != last_floor:
+                            # Floor has changed, so the previous segment is complete
+                            if current_segment["coords"]: # Make sure the segment isn't empty
+                                # The node *before* the current one (i-1) is the last node of the previous segment
+                                # This node represents the transition point (e.g., stairs/elevator)
+                                last_node_id_in_segment = path_node_ids[i - 1]
+                                if last_node_id_in_segment not in CAMPUS_GRAPH.nodes: raise KeyError(f"Node '{last_node_id_in_segment}' not found")
+                                last_node_data_in_segment = CAMPUS_GRAPH.nodes[last_node_id_in_segment]
+                                transition_node_type = last_node_data_in_segment.get('type', 'Unknown')
+
+                                # Store the transition node's type and ID in the completed segment
+                                current_segment["end_node_type"] = transition_node_type
+                                current_segment["end_node_id"] = last_node_id_in_segment
+
+                                # Add the completed segment to the list of segments
+                                path_segments.append(current_segment)
+
+                            # Start a new segment for the new floor, beginning with the current node
+                            current_segment = {
+                                "floor": current_floor, "coords": [coords], "node_ids": [node_id],
+                                "end_node_type": None, "end_node_id": None
+                            }
+                        else:
+                            # Floor has not changed, add the current node's data to the ongoing segment
+                            current_segment["coords"].append(coords)
+                            current_segment["node_ids"].append(node_id)
+
+                        # Update last_floor for the next iteration
+                        last_floor = current_floor
+
+                    # After the loop finishes, the 'current_segment' holds the last segment of the path
+                    if current_segment["coords"]:
+                        # The very last node in the original path list is the end of this final segment
+                        last_node_id_in_path = path_node_ids[-1]
+                        if last_node_id_in_path not in CAMPUS_GRAPH.nodes: raise KeyError(f"Node '{last_node_id_in_path}' not found")
+                        last_node_data_in_path = CAMPUS_GRAPH.nodes[last_node_id_in_path]
+                        # Get the type of the final destination node
+                        final_node_type = last_node_data_in_path.get('type', 'Unknown')
+                        # Set the end node details for the final segment
+                        current_segment["end_node_type"] = final_node_type
+                        current_segment["end_node_id"] = last_node_id_in_path
+
+                        # Add the final segment to the list
+                        path_segments.append(current_segment)
+                # End Segmentation
+
+                print(f"Path successfully segmented into {len(path_segments)} segments.")
+                nav_message = f"Please follow the path from {start_room_input} to {goal_room_input}."
+                response = jsonify({
+                    "status": "success", "message": nav_message, "path_segments": path_segments
+                }), 200
+
+            except KeyError as e:
+                print(f"CRITICAL ERROR during path segmentation: KeyError - Node {e} not found in graph or missing attribute.")
+                traceback.print_exc()
+                response = jsonify({"status": "error", "message": f"Error processing path data: A required location ({e}) was not found in the map data."}), 500
+            except Exception as e:
+                print(f"CRITICAL ERROR during path segmentation: {e}")
+                traceback.print_exc()
+                response = jsonify({"status": "error", "message": "An internal server error occurred while processing the navigation path."}), 500
+
+        else: # path_node_ids is None or empty (No path found)
+            print("No path found between start and goal nodes (A* returned None or empty list).")
+            if start_node_id == goal_node_id:
+                 msg = f"You are already at '{start_room_input}'."
+                 response = jsonify({"status": "success", "message": msg, "path_segments": []}), 200
+            else:
+                msg = f"Sorry, no navigable path could be found between '{start_room_input}' and '{goal_room_input}'. The locations might be disconnected on the map."
+                response = jsonify({"status": "error","message": msg,"path_segments": []}), 404
+
+    except Exception as e:
+        print(f"CRITICAL UNHANDLED ERROR in handle_navigation: {e}")
+        traceback.print_exc()
+        response = jsonify({"status": "error", "message": "An unexpected internal server error occurred."}), 500
+
+    # Final Return
+    # Ensure response is not None before returning
+    if response is None:
+        print("!!! LOGIC ERROR: handle_navigation reached end without setting a response !!!")
+        response = jsonify({"status": "error", "message": "Internal server error: Failed to generate response."}), 500
+
+    return response
 
 @app.route('/api/library_room_types', methods=['GET'])
 def get_library_room_types():
@@ -279,7 +334,6 @@ def get_library_room_types():
     
     # Make sure we're returning a properly formatted JSON array
     return jsonify(library_rooms_type)
-
 
 @app.route('/api/available_library_rooms', methods=['GET'])
 def get_available_library_rooms():
@@ -349,7 +403,6 @@ def get_available_library_rooms():
 
     return jsonify(available_library_rooms)
 
-
 @app.route('/api/all_room_types', methods=['GET'])
 def get_all_room_types():
     cur = mysql.connection.cursor()
@@ -376,7 +429,6 @@ def get_all_room_types():
     
     # Make sure we're returning a properly formatted JSON array
     return jsonify(library_rooms_type)
-
 
 @app.route('/api/available_rooms', methods=['GET'])
 def get_available_rooms():
@@ -410,7 +462,6 @@ def get_available_rooms():
         })
 
     return jsonify(available_rooms)
-
 
 @app.route('/api/current_bookings', methods=['GET'])
 def get_current_bookings():
@@ -447,7 +498,6 @@ def get_current_bookings():
 
     return jsonify(current_bookings)
 
-
 @app.route('/api/book_room', methods=['POST'])
 def book_room():
     data = request.get_json()
@@ -476,7 +526,6 @@ def book_room():
 
     return jsonify({"message": "Booking successful!"}), 201
 
-
 @app.route('/api/remove_booking/<bookingId>', methods=['DELETE'])
 def remove_booking(bookingId):
     if not bookingId:
@@ -499,7 +548,6 @@ def get_history():
     cur.close()
     return jsonify(result)
 
-
 @app.route('/api/history', methods=['POST'])
 def add_history():
     data = request.json
@@ -518,7 +566,6 @@ def add_history():
 
     return jsonify({"message": "Navigation history saved."})
 
-
 @app.route('/api/history/<int:history_id>', methods=['DELETE'])
 def delete_history_entry(history_id):
     cur = mysql.connection.cursor()
@@ -527,7 +574,6 @@ def delete_history_entry(history_id):
     cur.close()
     return jsonify({"message": f"Deleted route {history_id}."})
 
-
 @app.route('/api/history', methods=['DELETE'])
 def clear_all_history():
     cur = mysql.connection.cursor()
@@ -535,8 +581,6 @@ def clear_all_history():
     mysql.connection.commit()
     cur.close()
     return jsonify({"message": "All history cleared."})
-
-from flask import request, jsonify
 
 # ======= CLASS SCHEDULE ROUTES =======
 
@@ -568,7 +612,6 @@ def get_class_schedules():
 
     return jsonify(schedules)
 
-
 @app.route('/api/create_class_schedule', methods=['POST'])
 def create_class_schedule():
     
@@ -598,7 +641,6 @@ def create_class_schedule():
         return jsonify({'message': 'Schedule created successfully'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 @app.route('/api/class_schedule', methods=['GET'])
 def get_class_schedule():
@@ -634,8 +676,6 @@ def get_class_schedule():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-
 @app.route('/api/update_class_schedule/<int:schedule_id>', methods=['PUT'])
 def update_class_schedule(schedule_id):
     data = request.get_json()
@@ -663,9 +703,6 @@ def update_class_schedule(schedule_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-
-
 @app.route('/api/delete_class_schedule/<int:schedule_id>', methods=['DELETE'])
 def delete_class_schedule(schedule_id):
     try:
@@ -678,9 +715,8 @@ def delete_class_schedule(schedule_id):
         return jsonify({'error': str(e)}), 500
 
 
-
-
 if __name__ == '__main__':
+    initialize_graphs()
     app.run(debug=True)
 
 

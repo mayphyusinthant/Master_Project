@@ -254,7 +254,7 @@
     </style>
   </defs>
 
-  <polyline class="cls-48" points="950 89.83 950 90.83 953 90.83"/>
+    <polyline class="cls-48" points="950 89.83 950 90.83 953 90.83"/>
   <line class="cls-48" x1="941" y1="90.83" x2="941" y2="120.83"/>
   <line class="cls-48" x1="944" y1="89.83" x2="944" y2="90.83"/>
   <line class="cls-48" x1="944" y1="90.83" x2="941" y2="90.83"/>
@@ -6171,7 +6171,7 @@
   <path class="cls-52" d="m701,580.83h412.5l1.5-162-70.28-1.02c-18.03-.26-32.78,14.28-32.78,32.31v23.16c0,6.62-5.4,11.98-12.02,11.92l-298.93-2.36v98h.01Z"/>
   <rect class="cls-47" x=".5" y=".5" width="1134.06" height="608.67"/>
 
-  <rect id="walkable" data-name="walkable" class="cls-59" x="752" y="111.47" width="4.7" height="4.7" cost="1"/>
+   <rect id="walkable" data-name="walkable" class="cls-59" x="752" y="111.47" width="4.7" height="4.7" cost="1"/>
   <rect id="walkable" data-name="walkable" class="cls-59" x="756.7" y="111.47" width="4.7" height="4.7" cost="1"/>
   <rect id="walkable" data-name="walkable" class="cls-59" x="761.4" y="111.47" width="4.7" height="4.7" cost="1"/>
   <rect id="walkable" data-name="walkable" class="cls-59" x="766.1" y="111.47" width="4.7" height="4.7" cost="1"/>
@@ -6856,13 +6856,13 @@
   <rect id="walkable" data-name="walkable" class="cls-59" x="1052.8" y="83.27" width="4.7" height="4.7" cost="1"/>
   <rect id="walkable" data-name="walkable" class="cls-59" x="1057.5" y="83.27" width="4.7" height="4.7" cost="1"/>
 
-  <rect id="stairs" data-name="stairs" class="cls-59" x="305.5" y="313.57" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-59" x="390.1" y="337.07" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-59" x="662.7" y="304.17" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-59" x="672.1" y="435.77" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-59" x="977.6" y="308.87" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-59" x="747.3" y="111.47" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-59" x="977.6" y="106.77" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsFRONT3" data-name="stairsFRONT3" class="cls-59" x="305.5" y="313.57" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsFRONT" data-name="stairsFRONT" class="cls-59" x="390.1" y="337.07" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC6" data-name="stairsJKCC6" class="cls-59" x="662.7" y="304.17" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC8" data-name="stairsJKCC8" class="cls-59" x="672.1" y="435.77" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC2" data-name="stairsJKCC2" class="cls-59" x="977.6" y="308.87" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC5" data-name="stairsJKCC5" class="cls-59" x="747.3" y="111.47" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC4" data-name="stairsJKCC4" class="cls-59" x="977.6" y="106.77" width="4.7" height="4.7" cost="2"/>
 
   <rect id="obstacle" data-name="obstacle" class="cls-59" x="742.6" y="111.47" width="4.7" height="4.7" cost="1000"/>
   <rect id="obstacle" data-name="obstacle" class="cls-59" x="742.6" y="106.77" width="4.7" height="4.7" cost="1000"/>
@@ -8368,9 +8368,9 @@
   <rect id="obstacle" data-name="obstacle" class="cls-59" x="766.1" y="78.57" width="4.7" height="4.7" cost="1000"/>
   <rect id="obstacle" data-name="obstacle" class="cls-59" x="766.1" y="73.87" width="4.7" height="4.7" cost="1000"/>
 
-  <rect id="elevator" data-name="elevator" class="cls-59" x="944.7" y="87.97" width="4.7" height="4.7" cost="0.8"/>
-  <rect id="elevator" data-name="elevator" class="cls-59" x="1005.8" y="87.97" width="4.7" height="4.7" cost="0.8"/>
-  <rect id="elevator" data-name="elevator" class="cls-59" x="648.6" y="327.67" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorJKCC2" data-name="elevatorJKCC2" class="cls-59" x="944.7" y="87.97" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorJKCC3" data-name="elevatorJKCC3" class="cls-59" x="1005.8" y="87.97" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorJKCC" data-name="elevatorJKCC" class="cls-59" x="648.6" y="327.67" width="4.7" height="4.7" cost="0.8"/>
 
   <rect id="A79a" data-name="A79a" class="cls-59" x="249.1" y="261.87" width="4.7" height="4.7" cost="0"/>
   <rect id="A79e" data-name="A79e" class="cls-59" x="282" y="318.27" width="4.7" height="4.7" cost="0"/>
