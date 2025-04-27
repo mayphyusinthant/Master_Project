@@ -29,7 +29,7 @@ export const NavHistory = () => {
       floorTo: route.floor_to,
     };
     dispatch(setSelectedRoute(normalized));
-    navigate('/navigation');
+    navigate('/navigation', { state: { fromHistory: true } });
   };
 
   const handleDeleteRoute = (id) => {
@@ -51,7 +51,7 @@ export const NavHistory = () => {
       <Box
         width="100%"
         display="grid"
-        gridTemplateColumns={{ xs: '1fr', sm: 'repeat(2, 1fr)' }}
+        gridTemplateColumns={{ xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
         gap={2}
       >
         {loading ? (
@@ -65,7 +65,7 @@ export const NavHistory = () => {
         ) : (
           history
             .slice()
-            .reverse()
+            
             .map((route) => (
               <NavHistoryCard
                 key={route.timestamp}

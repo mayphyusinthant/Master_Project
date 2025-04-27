@@ -50,11 +50,19 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
       const svg = d3.select(containerRef.current).select('svg');
       
       svg
-        .attr('width', '100%')
-        .attr('height', '100%')
-        .attr('preserveAspectRatio', 'xMidYMid meet');
+  .attr('width', '100%')
+  .attr('height', '100%')
+  .attr('preserveAspectRatio', 'xMidYMid meet')
+  .style('display', 'block')
+  .style('max-width', '100%')
+  
+  .style('object-fit', 'contain');
 
-      // Add style for highlighting
+
+        
+      // Add style for highlighting 
+      
+
       const style = document.createElement("style");
       style.innerHTML = `
         .highlight path, .highlight polygon, .highlight rect, .highlight polyline, .highlight line { 
@@ -65,7 +73,9 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
           fill: white !important; 
         }
       `;
+      svgNode.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       document.head.appendChild(style);
+
 
       // Select ALL potential interactive elements
       const interactiveElements = d3.select(containerRef.current)
@@ -207,21 +217,27 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
       {/* SVG Container - Fixed width container with responsive behavior */}
       <Box
         sx={{
-          width: '100%',
-          height: '600px',
+          width: '90%',
+          maxWidth: '95%',
+          height: '75vh',
+          aspectRatio: 'auto',
           border: '2px solid black',
           overflow: 'hidden',
           position: 'relative',
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
+          borderRadius: '8px',
+    bgcolor: '#ffffff',
         }}
       >
         <div
           ref={containerRef}
           style={{
-            width: '100%',
+            width: 'auto',
             height: '100%',
+            maxWidth: '100%',
+            maxHeight: '100%',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center'

@@ -136,12 +136,13 @@ const Map = ({ map, pathCoordinates }) => {
   return (
     <Box
       ref={svgContainerRef}
-      width="90%"
-      maxWidth="900px"
-      maxHeight="75vh"
+      width="100%"
+      // maxWidth="900px"
+      maxHeight="70vh"
+      overflow="hidden"
       border="1px solid #ccc"
       borderRadius="8px"
-      overflow="auto"
+      
       bgcolor="#ffffff"
       mt={2}
       mb={2}
@@ -150,13 +151,15 @@ const Map = ({ map, pathCoordinates }) => {
         justifyContent: 'center',
         alignItems: 'center',
         position: 'relative',
-        minHeight: '400px',
+       
         '& svg': { // Style the SVG element itself via CSS
           display: 'block',
           width: '100%',
-          height: 'auto',
-          maxWidth: '100%',
-          maxHeight: 'calc(100vh - 2px)',
+          height: '100%',
+          objectFit: 'contain',
+          // maxWidth: '100%',
+          maxHeight: '70vh',
+           preserveAspectRatio: 'xMidYMid meet'
         }
       }}
     >

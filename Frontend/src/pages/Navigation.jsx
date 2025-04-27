@@ -2,6 +2,7 @@ import { Box, Autocomplete, TextField, Button, CircularProgress } from '@mui/mat
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveRouteToDB, setSelectedRoute } from '../features/history/historySlice';
+import { useLocation } from 'react-router-dom';
 
 // import { locations } from '../data/locations';
 
@@ -50,6 +51,7 @@ export const Navigation = () => {
   const [loading, setLoading] = useState(false);
   const [pathCoordinates, setPathCoordinates] = useState([]); // SVG coordinates from backend
   const [currentMapPath, setCurrentMapPath] = useState(floorMapPaths['B']); // Default to Floor B SVG path
+  const location = useLocation();
 
   // Fetch all Rooms
   useEffect(()=> {
@@ -190,9 +192,16 @@ export const Navigation = () => {
 
       setPathCoordinates([]);
       setMessage('');
-      dispatch(setSelectedRoute(null));
+      
     }
   }, [selectedRoute, dispatch, locations]);
+
+  useEffect(() => {
+    if (!location.state?.fromHistory) {
+      // Not coming from history page, reset selectedRoute
+      dispatch(setSelectedRoute(null));
+    }
+  }, [location, dispatch]);
 
   // Component Return JSX
   return (
@@ -216,7 +225,7 @@ export const Navigation = () => {
             </li>
           )}
           renderInput={(params) => <TextField {...params} label="FROM" variant="outlined" />}
-          sx={{ width: { xs: '80%', sm: 250 } }}
+          sx={{ width: { xs: '80%', sm: 300 } }}
           size="small"
         />
         <Autocomplete
@@ -234,7 +243,7 @@ export const Navigation = () => {
             </li>
           )}
           renderInput={(params) => <TextField {...params} label="TO" variant="outlined" />}
-          sx={{ width: { xs: '80%', sm: 250 } }}
+          sx={{ width: { xs: '80%', sm: 300 } }}
           size="small"
         />
         <Button

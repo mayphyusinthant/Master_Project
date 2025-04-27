@@ -134,7 +134,7 @@ export const PlanInfo = () => {
   };
 
   return (
-    <Grid2 container spacing={4} justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
+    <Grid2 container spacing={4} justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
       {/* Left Side - Room Information */}
       <Grid2
         
@@ -144,7 +144,7 @@ export const PlanInfo = () => {
         display="flex"
         flexDirection="column"
         gap={2}
-        sx={{ minHeight: 160 }}
+        sx={{ minHeight: 140 }}
       >
         <Autocomplete
           options={roomTypes}
@@ -230,7 +230,7 @@ export const PlanInfo = () => {
               justifyContent: 'center',
               gap: 1,
               flexWrap: 'wrap',
-              mb: 2,
+              mb: 0,
               width: '100%'
             }}
           >
