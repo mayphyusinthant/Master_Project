@@ -18,11 +18,13 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
   },
 }));
 
-function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, setSelectedType, setDescription}) {
+function InteractiveMap({ map, scale = 1, roomData = [] ,selectedRoom, setSelectedRoom, setSelectedType, setDescription}) {
   const containerRef = useRef();
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [tooltipContent, setTooltipContent] = useState('');
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [tooltipTimer, setTooltipTimer] = useState(null);
+  
   
 
 
@@ -53,13 +55,9 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
   .attr('width', '100%')
   .attr('height', '100%')
   .attr('preserveAspectRatio', 'xMidYMid meet')
-  .style('display', 'block')
-  .style('max-width', '100%')
+
+
   
-  .style('object-fit', 'contain');
-
-
-        
       // Add style for highlighting 
       
 
@@ -131,6 +129,11 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
             x: event.clientX,
             y: event.clientY - 15
           });
+         
+
+
+
+
         })
         .on("mousemove", function(event) {
           // Update position on mouse move using clientX/Y for viewport-relative positioning
@@ -147,6 +150,9 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
           
           elementToUnhighlight.classed("highlight", false);
           setTooltipOpen(false);
+          if (tooltipTimer) {
+            clearTimeout(tooltipTimer);
+          }
         });
         highlightSelectedRoom();
     }).catch(error => {
@@ -157,7 +163,6 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
   const highlightSelectedRoom = () => {
     if (!selectedRoom) return;
   
-    // Clear previous highlights
     d3.select(containerRef.current)
       .selectAll('.highlight')
       .classed('highlight', false);
@@ -166,9 +171,6 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
       ? selectedRoom.split(' (')[0]
       : selectedRoom.roomName;
   
-    console.log('Trying to highlight and tooltip for:', selectedRoomName);
-  
-    // Find the element
     const element = d3.select(containerRef.current)
       .select(`#${selectedRoomName}`)
       .node();
@@ -177,7 +179,6 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
       const highlightElement = d3.select(element.closest('g') || element);
       highlightElement.classed("highlight", true);
   
-      // 🛠 Show tooltip too
       const matchedRoom = roomData.find(room =>
         room.roomId == selectedRoomName || room.roomName == selectedRoomName
       );
@@ -190,8 +191,7 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
           ${matchedRoom.description ? `<strong>Description</strong><br>${matchedRoom.description}` : ''}
         `;
         setTooltipContent(content);
-        
-        // Find room center coordinates
+  
         const bbox = element.getBoundingClientRect();
         setTooltipPosition({
           x: bbox.left + bbox.width / 2,
@@ -199,9 +199,19 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
         });
   
         setTooltipOpen(true);
+  
+        // ✨ Auto-close timer only after Autocomplete trigger
+        if (tooltipTimer) {
+          clearTimeout(tooltipTimer);
+        }
+        const timer = setTimeout(() => {
+          setTooltipOpen(false);
+        }, 2000);
+        setTooltipTimer(timer);
       }
     }
   };
+  
   
 
   return (
@@ -234,7 +244,8 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
         <div
           ref={containerRef}
           style={{
-            width: 'auto',
+            width: '100%',
+            scale: scale,
             height: '100%',
             maxWidth: '100%',
             maxHeight: '100%',
@@ -243,6 +254,7 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
             alignItems: 'center'
           }}
         />
+     
 
         {/* Tooltip */}
         {tooltipOpen && (

@@ -127,10 +127,7 @@ export const LibraryInfo = () => {
         gap={2}
         mb={3}
         p={2}
-        sx={{
-          backgroundColor: '#f5f5f5',
-          borderRadius: '4px',
-        }}
+       
       >
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DateTimePicker

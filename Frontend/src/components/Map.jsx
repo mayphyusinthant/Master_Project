@@ -138,7 +138,7 @@ const Map = ({ map, pathCoordinates }) => {
       ref={svgContainerRef}
       width="100%"
       // maxWidth="900px"
-      maxHeight="70vh"
+      maxHeight="65vh"
       overflow="hidden"
       border="1px solid #ccc"
       borderRadius="8px"
@@ -158,7 +158,7 @@ const Map = ({ map, pathCoordinates }) => {
           height: '100%',
           objectFit: 'contain',
           // maxWidth: '100%',
-          maxHeight: '70vh',
+          maxHeight: '69vh',
            preserveAspectRatio: 'xMidYMid meet'
         }
       }}

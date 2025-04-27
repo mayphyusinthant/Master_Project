@@ -50,7 +50,7 @@ import {
           <Box display="flex" justifyContent="center" mt={2}>
           
             <Button color="success" variant="contained" onClick={onRepeat} endIcon={<ArrowForward />}>
-              Navigate
+              Repeat route
             </Button>
             
           </Box>
