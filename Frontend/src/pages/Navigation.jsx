@@ -5,8 +5,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveRouteToDB, setSelectedRoute } from '../features/history/historySlice';
 import { useLocation } from 'react-router-dom';
-// import { locations } from '../data/locations';
-//import 'leaflet/dist/leaflet.css'; // Import Leaflet styles
+
 
 import Map from '../components/Map';
 
@@ -22,24 +21,25 @@ import floorH_SvgPath from '../assets/Floors/Floor_H.svg';
 
 // Create a mapping from floor letter/name to imported SVG path
 const floorMapPaths = {
-    'A': floorA_SvgPath,
-    'B': floorB_SvgPath,
-    'C': floorC_SvgPath,
-    'D': floorD_SvgPath,
-    'E': floorE_SvgPath,
-    'F': floorF_SvgPath,
-    'G': floorG_SvgPath,
-    'H': floorH_SvgPath,
-    // Add mappings for 'Floor A', 'Floor B' etc.
-    'Floor A': floorA_SvgPath,
-    'Floor B': floorB_SvgPath,
-    'Floor C': floorC_SvgPath,
-    'Floor D': floorD_SvgPath,
-    'Floor E': floorE_SvgPath,
-    'Floor F': floorF_SvgPath,
-    'Floor G': floorG_SvgPath,
-    'Floor H': floorH_SvgPath,
+  'A': { map: floorA_SvgPath, scale: 1 },
+  'B': { map: floorB_SvgPath, scale: 1 },
+  'C': { map: floorC_SvgPath, scale: 1 },
+  'D': { map: floorD_SvgPath, scale: 1.55 },
+  'E': { map: floorE_SvgPath, scale: 1.55 },
+  'F': { map: floorF_SvgPath, scale: 1.55 },
+  'G': { map: floorG_SvgPath, scale: 1 },
+  'H': { map: floorH_SvgPath, scale: 1.05 },
+  
+  'Floor A': { map: floorA_SvgPath },
+  'Floor B': { map: floorB_SvgPath },
+  'Floor C': { map: floorC_SvgPath },
+  'Floor D': { map: floorD_SvgPath },
+  'Floor E': { map: floorE_SvgPath },
+  'Floor F': { map: floorF_SvgPath },
+  'Floor G': { map: floorG_SvgPath },
+  'Floor H': { map: floorH_SvgPath },
 };
+
 
 const floorOrder = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
@@ -61,15 +61,13 @@ export const Navigation = () => {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [message, setMessage] = useState('');
-// <<<<<<< admin-navigation-history-fix
-  const [loading, setLoading] = useState(false);
-  const [pathCoordinates, setPathCoordinates] = useState([]); // SVG coordinates from backend
-  const [currentMapPath, setCurrentMapPath] = useState(floorMapPaths['B']); // Default to Floor B SVG path
+
   const location = useLocation();
-// =======
+
   const [loading, setLoading] = useState(false); // Loading indicator for API calls
   const [pathSegments, setPathSegments] = useState([]); // Array of path segments from backend
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0); // Index of the currently viewed segment
+  const [mapLoading, setMapLoading] = useState(false);
 
   const currentSegment = pathSegments?.[currentSegmentIndex];
   const currentPathCoordinates = currentSegment?.coords || []; // Coordinates for the current segment map
@@ -94,6 +92,12 @@ export const Navigation = () => {
     return instruction;
   }, [currentSegment, isLastSegment, pathSegments, currentSegmentIndex]);
 
+  useEffect(() => {
+    if (currentSegment) {
+      setMapLoading(true); // Start showing spinner
+    }
+  }, [currentSegment]);
+
   // Update the main message based on current segment ---
   useEffect(() => {
     // Don't update message if still loading path segments or if no segments exist
@@ -103,6 +107,7 @@ export const Navigation = () => {
 
     const currentFloor = currentSegment?.floor || 'N/A';
     let newMessage = "";
+    
 
     if (totalSegments === 1) {
       newMessage = `Follow the path on Floor ${currentFloor} to your destination.`;
@@ -258,7 +263,7 @@ export const Navigation = () => {
 
   // Handle selecting a route from History
   useEffect(() => {
-    if (selectedRoute) {
+    if (selectedRoute  && locations.length > 0) {
       console.log("Applying route from history:", selectedRoute);
 
       const startLoc = locations.find(loc => loc.roomName === selectedRoute.from);
@@ -268,21 +273,15 @@ export const Navigation = () => {
       setFrom(startLoc ? startLoc.roomName : '');
       setTo(endLoc ? endLoc.roomName : '');
 
-// <<<<<<< admin-navigation-history-fix
-      // Update map based on the 'from' location from history
-      if (startLoc && startLoc.floor) {
-           const floorKey = startLoc.floor;
-           const newMapPath = floorMapPaths[floorKey];
-           setCurrentMapPath(newMapPath || floorMapPaths['B']); // Default if not found
-       } else {
-            setCurrentMapPath(floorMapPaths['B']); // Default if start location not found
-       }
 
-      setPathCoordinates([]);
-      setMessage('');
+
+
+      setPathSegments([]);
+      setCurrentSegmentIndex(0);
+      setMessage('Route loaded from history. Click "Navigate" to generate path.');
       
     }
-  }, [selectedRoute, dispatch, locations]);
+  }, [selectedRoute, locations]);
 
   useEffect(() => {
     if (!location.state?.fromHistory) {
@@ -291,16 +290,7 @@ export const Navigation = () => {
     }
   }, [location, dispatch]);
 
-  // Component Return JSX
-// =======
-      // Clear any existing path/message from previous navigation
-      setPathSegments([]);
-      setCurrentSegmentIndex(0);
-      setMessage('Route loaded from history. Click "Navigate" to generate path.');
 
-      dispatch(setSelectedRoute(null));
-    }
-  }, [selectedRoute, dispatch, locations]);
 
   // Button Handlers for Segment Navigation
   const handlePreviousSegment = () => {
@@ -343,7 +333,7 @@ export const Navigation = () => {
           renderOption={(props, option) => (
             // Use roomId for key if available and unique, otherwise roomName
             <li {...props} key={option.roomId || option.roomName}>
-              {option.roomName} <Typography variant="caption" color="textSecondary" sx={{ ml: 1 }}>({option.floor || 'N/A'})</Typography>
+              {option.roomName} <Typography variant="caption" color="text.additional" sx={{ ml: 1 }}>({option.floor || 'N/A'})</Typography>
             </li>
           )}
           renderInput={(params) => <TextField {...params} label="FROM" variant="outlined" />}
@@ -359,7 +349,7 @@ export const Navigation = () => {
           onChange={(event, newValue) => setTo(newValue?.roomName || '')}
            renderOption={(props, option) => (
             <li {...props} key={option.roomId || option.roomName}>
-              {option.roomName} <Typography variant="caption" color="textSecondary" sx={{ ml: 1 }}>({option.floor || 'N/A'})</Typography>
+              {option.roomName} <Typography variant="caption" color="text.additional" sx={{ ml: 1 }}>({option.floor || 'N/A'})</Typography>
             </li>
           )}
           renderInput={(params) => <TextField {...params} label="TO" variant="outlined" />}
@@ -386,7 +376,7 @@ export const Navigation = () => {
               message && (
                   <Typography
                       variant="body1"
-                      color={message.toLowerCase().includes("error") || message.toLowerCase().includes("failed") ? "error" : "textPrimary"}
+                      color={message.toLowerCase().includes("error") || message.toLowerCase().includes("failed") ? "error" : "text.additional"}
                       textAlign="center"
                       sx={{
                           p: 1,
@@ -405,12 +395,28 @@ export const Navigation = () => {
 
       {/* --- Map Display Area --- */}
       {/* Conditionally render Map only if there are segments */}
+      
       {pathSegments.length > 0 && currentSegment && (
+         <Box
+         display="flex"
+         justifyContent="center"
+         alignItems="center"
+         border="1px dashed #ccc"
+         borderRadius="8px"
+         width="100%"
+         maxWidth="100%"
+         height='65vh'
+         mt={2} mb={2}
+         bgcolor="#f9f9f9"
+     >
           <Map
               key={`${currentSegment.floor}-${currentSegmentIndex}`} // Force re-render on floor/segment change
-              map={currentMapPath} // Pass the dynamically determined SVG path
+              map={currentMapPath.map}         // ✅ get map path
+              scale={currentMapPath.scale}
               pathCoordinates={currentPathCoordinates} // Pass coordinates for the CURRENT segment
+              onLoad={() => setMapLoading(false)}   // 🔥 ADD THIS
           />
+          </Box>
       )}
        {/* Placeholder when no map is active */}
        {pathSegments.length === 0 && !loading && (
@@ -421,12 +427,12 @@ export const Navigation = () => {
                 border="1px dashed #ccc"
                 borderRadius="8px"
                 width="90%"
-                maxWidth="900px"
-                minHeight="400px"
+                maxWidth="100%"
+                height='65vh'
                 mt={2} mb={2}
                 bgcolor="#f9f9f9"
             >
-                <Typography color="textSecondary">
+                <Typography color="text.additional">
                     {locations.length > 0 ? "Select start and end points and click Navigate." : "Loading locations..."}
                 </Typography>
             </Box>

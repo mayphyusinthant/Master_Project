@@ -1,5 +1,5 @@
 import { Clear } from '@mui/icons-material';
-import { Box, Button, Typography, CircularProgress } from '@mui/material';
+import { Box, Button, Typography, CircularProgress, Pagination } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   clearHistoryFromDB,
@@ -10,12 +10,19 @@ import {
 import { PageTitle } from '../components/pageTitle';
 import { NavHistoryCard } from '../components/NavHistoryCard';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export const NavHistory = () => {
   const { history, loading } = useSelector((state) => state.history);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 12;
+
+
+  const paginatedHistory = [...history]
+  .sort((a, b) => b.timestamp - a.timestamp) // Newest first
+  .slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   useEffect(() => {
     dispatch(fetchHistoryFromDB());
@@ -63,9 +70,7 @@ export const NavHistory = () => {
             <Typography variant="body1">No history yet.</Typography>
           </Box>
         ) : (
-          history
-            .slice()
-            
+          paginatedHistory
             .map((route) => (
               <NavHistoryCard
                 key={route.timestamp}
@@ -88,6 +93,16 @@ export const NavHistory = () => {
           Clear History
         </Button>
       )}
+      {history.length > itemsPerPage && (
+  <Box mt={2} mb={4} display="flex" justifyContent="center">
+    <Pagination
+      count={Math.ceil(history.length / itemsPerPage)}
+      page={page}
+      onChange={(e, value) => setPage(value)}
+      color="primary"
+    />
+  </Box>
+)}
     </Box>
   );
 };
