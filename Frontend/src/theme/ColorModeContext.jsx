@@ -55,6 +55,8 @@ export const CustomThemeProvider = ({ children }) => {
               },
               text: {
                 primary: "#ffffff",
+                additional: "#000000",
+                
               },
               banner: {
                 src: bannerDark,

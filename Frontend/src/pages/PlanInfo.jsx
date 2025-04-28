@@ -25,9 +25,9 @@ const floorMaps = {
   A: { map: floorA, scale: 1 },
   B: { map: floorB, scale: 1 },
   C: { map: floorC, scale: 1 },
-  D: { map: floorD, scale: 1.4 },
-  E: { map: floorE, scale: 1.4 },
-  F: { map: floorF, scale: 1.4 },
+  D: { map: floorD, scale: 1.6 },
+  E: { map: floorE, scale: 1.6 },
+  F: { map: floorF, scale: 1.6 },
   G: { map: floorG, scale: 1 },
   H: { map: floorH, scale: 1.1 },
 };
@@ -144,7 +144,7 @@ export const PlanInfo = () => {
         display="flex"
         flexDirection="column"
         gap={2}
-        sx={{ minHeight: 140 }}
+        sx={{ minHeight: 160 }}
       >
         <Autocomplete
           options={roomTypes}

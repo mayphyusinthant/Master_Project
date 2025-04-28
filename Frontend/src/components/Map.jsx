@@ -3,7 +3,7 @@ import { Box, CircularProgress, Typography } from '@mui/material';
 import * as d3 from 'd3';
 
 // Component to display the SVG map and draw the navigation path for a single segment
-const Map = ({ map: mapPath, pathCoordinates }) => {
+const Map = ({ map: mapPath, pathCoordinates, scale = 1, onLoad }) => {
   const svgContainerRef = useRef(null);
   const svgRef = useRef(null);
   const zoomRef = useRef(null);
@@ -40,6 +40,7 @@ const Map = ({ map: mapPath, pathCoordinates }) => {
           if (text && text.trim().includes('<svg')) {
             setSvgContent(text);
             setError(null);
+            if (onLoad) onLoad();  // <- fire only when SVG is valid
           } else {
             setError("Invalid or non-SVG file content received.");
             setSvgContent(null);
@@ -260,15 +261,10 @@ const Map = ({ map: mapPath, pathCoordinates }) => {
       overflow="hidden"
       border="1px solid #ccc"
       borderRadius="8px"
-//       width="90%"
-//       maxWidth="900px"
-//       maxHeight="70vh"
-//       border="1px solid #ccc"
-//       borderRadius="8px"
-//       overflow="hidden"
+
       bgcolor="#ffffff"
-      mt={1}
-      mb={1}
+      
+      
       sx={{
       display: 'flex',
       justifyContent: 'center',
@@ -280,20 +276,10 @@ const Map = ({ map: mapPath, pathCoordinates }) => {
       width: '100%',
       height: '100%',
       objectFit: 'contain',
-      // maxWidth: '100%',
-      maxHeight: '69vh',
+      scale: scale, // Apply the scale prop to the SVG
+      height: {xs: '30vh',sm:'45vh', md:'55vh', lg:'65vh'},
       preserveAspectRatio: 'xMidYMid meet'
-//         minHeight: '400px',
-//         '& svg': { // Style the SVG element itself
-//           display: 'block',
-//           width: '100%',
-//           height: '100%',
-//           maxWidth: '100%',
-//           maxHeight: 'calc(70vh - 4px)',
-//           cursor: 'grab', // Indicate pannable
-//           '&:active': {
-//               cursor: 'grabbing',
-//           },
+//
         }
       }}
     >
