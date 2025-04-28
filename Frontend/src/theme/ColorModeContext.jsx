@@ -40,7 +40,8 @@ export const CustomThemeProvider = ({ children }) => {
               header : {
                 background: "#FF5050",
                 
-              }
+              },
+              backgroundGradient: 'linear-gradient(90deg, rgba(195, 253, 239, 0.9) 0%, rgba(241,254,251,1) 16%, rgb(253, 253, 253) 49%, rgba(241,254,251,1) 84%, rgba(195, 253, 239, 0.9) 100%)',  
 
             }
           : {
@@ -61,7 +62,8 @@ export const CustomThemeProvider = ({ children }) => {
               },
               header : {
                 background: '#be3939',
-              }
+              },
+              backgroundGradient: 'linear-gradient( 90deg, rgba(100, 100, 100, 1) 0%, rgba(80, 80, 80, 0.95) 20%, rgba(61, 61, 61, 0.9) 50%, rgba(80, 80, 80, 0.95) 80%, rgba(100, 100, 100, 1) 100%)',  
             }),
       },
     });

@@ -24,10 +24,10 @@ return (
             <img
               src="../../public/favicon.png"
               alt="Logo"
-              style={{ height: '40px', marginRight: '16px' }}
+              style={{ height: '50px', marginRight: '10px', marginLeft: '10px' }}
             />
           </Link>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography variant="h4" sx={{ flexGrow: 1, fontFamily: 'monospace', fontWeight: 'bold', fontStyle: 'italic' }}>
             Navigator
           </Typography>
     

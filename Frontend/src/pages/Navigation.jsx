@@ -4,6 +4,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveRouteToDB, setSelectedRoute } from '../features/history/historySlice';
+import { useLocation } from 'react-router-dom';
+// import { locations } from '../data/locations';
+//import 'leaflet/dist/leaflet.css'; // Import Leaflet styles
+
 import Map from '../components/Map';
 
 // Import ALL floor SVGs
@@ -57,6 +61,12 @@ export const Navigation = () => {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [message, setMessage] = useState('');
+// <<<<<<< admin-navigation-history-fix
+  const [loading, setLoading] = useState(false);
+  const [pathCoordinates, setPathCoordinates] = useState([]); // SVG coordinates from backend
+  const [currentMapPath, setCurrentMapPath] = useState(floorMapPaths['B']); // Default to Floor B SVG path
+  const location = useLocation();
+// =======
   const [loading, setLoading] = useState(false); // Loading indicator for API calls
   const [pathSegments, setPathSegments] = useState([]); // Array of path segments from backend
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0); // Index of the currently viewed segment
@@ -128,6 +138,7 @@ export const Navigation = () => {
 
     setMessage(newMessage);
   }, [currentSegmentIndex, pathSegments, loading, currentSegment, getTransitionInstruction, isFirstSegment, isLastSegment, totalSegments]); // Add dependencies
+// >>>>>>> main
 
   // Fetch all Room Locations
   useEffect(()=> {
@@ -257,6 +268,31 @@ export const Navigation = () => {
       setFrom(startLoc ? startLoc.roomName : '');
       setTo(endLoc ? endLoc.roomName : '');
 
+// <<<<<<< admin-navigation-history-fix
+      // Update map based on the 'from' location from history
+      if (startLoc && startLoc.floor) {
+           const floorKey = startLoc.floor;
+           const newMapPath = floorMapPaths[floorKey];
+           setCurrentMapPath(newMapPath || floorMapPaths['B']); // Default if not found
+       } else {
+            setCurrentMapPath(floorMapPaths['B']); // Default if start location not found
+       }
+
+      setPathCoordinates([]);
+      setMessage('');
+      
+    }
+  }, [selectedRoute, dispatch, locations]);
+
+  useEffect(() => {
+    if (!location.state?.fromHistory) {
+      // Not coming from history page, reset selectedRoute
+      dispatch(setSelectedRoute(null));
+    }
+  }, [location, dispatch]);
+
+  // Component Return JSX
+// =======
       // Clear any existing path/message from previous navigation
       setPathSegments([]);
       setCurrentSegmentIndex(0);
@@ -281,6 +317,7 @@ export const Navigation = () => {
       }
   };
 
+// >>>>>>> main
   return (
     <Box display="flex" flexDirection="column" alignItems="center" gap={2} width="100%" p={1}>
 
@@ -310,7 +347,8 @@ export const Navigation = () => {
             </li>
           )}
           renderInput={(params) => <TextField {...params} label="FROM" variant="outlined" />}
-          sx={{ width: { xs: 'calc(50% - 12px)', sm: 250 }, minWidth: 180 }}
+          sx={{ width: { xs: '80%', sm: 300 } }}
+//           sx={{ width: { xs: 'calc(50% - 12px)', sm: 250 }, minWidth: 180 }}
           size="small"
         />
         <Autocomplete
@@ -325,7 +363,8 @@ export const Navigation = () => {
             </li>
           )}
           renderInput={(params) => <TextField {...params} label="TO" variant="outlined" />}
-          sx={{ width: { xs: 'calc(50% - 12px)', sm: 250 }, minWidth: 180 }}
+          sx={{ width: { xs: '80%', sm: 300 } }}
+//        sx={{ width: { xs: 'calc(50% - 12px)', sm: 250 }, minWidth: 180 }}
           size="small"
         />
         <Button

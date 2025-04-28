@@ -26,11 +26,11 @@ import {
     
     
     return (
-      <Box sx={{ display: 'flex', minHeight: '100vh', flexGrow: 1 }}>
+      <Box sx={{ display: 'flex', flexGrow: 1 }}>
         {/* Sidebar (inside container, below header and above footer) */}
         <Box
           sx={{
-            width: { xs: 60, sm: 200 },
+            width: { xs: 60, sm: 220 },
             borderRight: `1px solid ${theme.palette.divider}`,
             bgcolor: theme.palette.header.background,
             color: "white",
@@ -65,9 +65,9 @@ import {
         </Box>
   
         {/* Page Content next to the sidebar */}
-        <Box sx={{ flexGrow: 1, p: 2 }}>
-          <Outlet />
-        </Box>
+        <Box sx={{ flexGrow: 1, p: 2, minHeight: '100vh' }}>
+  <Outlet />
+</Box>
      </Box>
     );
   };

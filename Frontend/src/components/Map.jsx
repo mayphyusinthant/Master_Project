@@ -253,31 +253,47 @@ const Map = ({ map: mapPath, pathCoordinates }) => {
   // Render Logic
   return (
     <Box
-      width="90%"
-      maxWidth="900px"
-      maxHeight="70vh"
+      ref={svgContainerRef}
+      width="100%"
+      // maxWidth="900px"
+      maxHeight="65vh"
+      overflow="hidden"
       border="1px solid #ccc"
       borderRadius="8px"
-      overflow="hidden"
+//       width="90%"
+//       maxWidth="900px"
+//       maxHeight="70vh"
+//       border="1px solid #ccc"
+//       borderRadius="8px"
+//       overflow="hidden"
       bgcolor="#ffffff"
       mt={1}
       mb={1}
       sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        minHeight: '400px',
-        '& svg': { // Style the SVG element itself
-          display: 'block',
-          width: '100%',
-          height: '100%',
-          maxWidth: '100%',
-          maxHeight: 'calc(70vh - 4px)',
-          cursor: 'grab', // Indicate pannable
-          '&:active': {
-              cursor: 'grabbing',
-          },
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      position: 'relative',
+       
+      '& svg': { // Style the SVG element itself via CSS
+      display: 'block',
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain',
+      // maxWidth: '100%',
+      maxHeight: '69vh',
+      preserveAspectRatio: 'xMidYMid meet'
+//         minHeight: '400px',
+//         '& svg': { // Style the SVG element itself
+//           display: 'block',
+//           width: '100%',
+//           height: '100%',
+//           maxWidth: '100%',
+//           maxHeight: 'calc(70vh - 4px)',
+//           cursor: 'grab', // Indicate pannable
+//           '&:active': {
+//               cursor: 'grabbing',
+//           },
         }
       }}
     >

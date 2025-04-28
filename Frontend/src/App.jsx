@@ -10,11 +10,14 @@ function App() {
   return (
     <Router>
       <Box display="flex" flexDirection="column" minHeight="100vh" sx={{
-        backgroundColor: theme.palette.background.default,
+        // backgroundColor: theme.palette.background.default,
+        backgroundImage: theme.palette.backgroundGradient,
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover',
         color: theme.palette.text.primary,
       }}>
         <Header />
-        <Container  maxWidth="md" sx={{ flexGrow: 1}}>
+        <Container  maxWidth="lg" sx={{ flexGrow: 1}}>
           <Box >
             <AppRoutes />
           </Box>

@@ -18,11 +18,13 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
   },
 }));
 
-function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, setSelectedType, setDescription}) {
+function InteractiveMap({ map, scale = 1, roomData = [] ,selectedRoom, setSelectedRoom, setSelectedType, setDescription}) {
   const containerRef = useRef();
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [tooltipContent, setTooltipContent] = useState('');
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [tooltipTimer, setTooltipTimer] = useState(null);
+  
   
 
 
@@ -50,11 +52,15 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
       const svg = d3.select(containerRef.current).select('svg');
       
       svg
-        .attr('width', '100%')
-        .attr('height', '100%')
-        .attr('preserveAspectRatio', 'xMidYMid meet');
+  .attr('width', '100%')
+  .attr('height', '100%')
+  .attr('preserveAspectRatio', 'xMidYMid meet')
 
-      // Add style for highlighting
+
+  
+      // Add style for highlighting 
+      
+
       const style = document.createElement("style");
       style.innerHTML = `
         .highlight path, .highlight polygon, .highlight rect, .highlight polyline, .highlight line { 
@@ -65,7 +71,9 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
           fill: white !important; 
         }
       `;
+      svgNode.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       document.head.appendChild(style);
+
 
       // Select ALL potential interactive elements
       const interactiveElements = d3.select(containerRef.current)
@@ -121,6 +129,11 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
             x: event.clientX,
             y: event.clientY - 15
           });
+         
+
+
+
+
         })
         .on("mousemove", function(event) {
           // Update position on mouse move using clientX/Y for viewport-relative positioning
@@ -137,6 +150,9 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
           
           elementToUnhighlight.classed("highlight", false);
           setTooltipOpen(false);
+          if (tooltipTimer) {
+            clearTimeout(tooltipTimer);
+          }
         });
         highlightSelectedRoom();
     }).catch(error => {
@@ -147,7 +163,6 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
   const highlightSelectedRoom = () => {
     if (!selectedRoom) return;
   
-    // Clear previous highlights
     d3.select(containerRef.current)
       .selectAll('.highlight')
       .classed('highlight', false);
@@ -156,9 +171,6 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
       ? selectedRoom.split(' (')[0]
       : selectedRoom.roomName;
   
-    console.log('Trying to highlight and tooltip for:', selectedRoomName);
-  
-    // Find the element
     const element = d3.select(containerRef.current)
       .select(`#${selectedRoomName}`)
       .node();
@@ -167,7 +179,6 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
       const highlightElement = d3.select(element.closest('g') || element);
       highlightElement.classed("highlight", true);
   
-      // 🛠 Show tooltip too
       const matchedRoom = roomData.find(room =>
         room.roomId == selectedRoomName || room.roomName == selectedRoomName
       );
@@ -180,8 +191,7 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
           ${matchedRoom.description ? `<strong>Description</strong><br>${matchedRoom.description}` : ''}
         `;
         setTooltipContent(content);
-        
-        // Find room center coordinates
+  
         const bbox = element.getBoundingClientRect();
         setTooltipPosition({
           x: bbox.left + bbox.width / 2,
@@ -189,9 +199,19 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
         });
   
         setTooltipOpen(true);
+  
+        // ✨ Auto-close timer only after Autocomplete trigger
+        if (tooltipTimer) {
+          clearTimeout(tooltipTimer);
+        }
+        const timer = setTimeout(() => {
+          setTooltipOpen(false);
+        }, 2000);
+        setTooltipTimer(timer);
       }
     }
   };
+  
   
 
   return (
@@ -207,26 +227,34 @@ function InteractiveMap({ map, roomData = [] ,selectedRoom, setSelectedRoom, set
       {/* SVG Container - Fixed width container with responsive behavior */}
       <Box
         sx={{
-          width: '100%',
-          height: '600px',
+          width: '90%',
+          maxWidth: '95%',
+          height: '75vh',
+          aspectRatio: 'auto',
           border: '2px solid black',
           overflow: 'hidden',
           position: 'relative',
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
+          borderRadius: '8px',
+    bgcolor: '#ffffff',
         }}
       >
         <div
           ref={containerRef}
           style={{
             width: '100%',
+            scale: scale,
             height: '100%',
+            maxWidth: '100%',
+            maxHeight: '100%',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center'
           }}
         />
+     
 
         {/* Tooltip */}
         {tooltipOpen && (

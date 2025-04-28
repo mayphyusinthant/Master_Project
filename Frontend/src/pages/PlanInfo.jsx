@@ -22,14 +22,14 @@ import floorH from '../assets/Floors/FLOOR_H.svg';
 
 // Map floor letters to image files
 const floorMaps = {
-  A: floorA,
-  B: floorB,
-  C: floorC,
-  D: floorD,
-  E: floorE,
-  F: floorF,
-  G: floorG,
-  H: floorH,
+  A: { map: floorA, scale: 1 },
+  B: { map: floorB, scale: 1 },
+  C: { map: floorC, scale: 1 },
+  D: { map: floorD, scale: 1.4 },
+  E: { map: floorE, scale: 1.4 },
+  F: { map: floorF, scale: 1.4 },
+  G: { map: floorG, scale: 1 },
+  H: { map: floorH, scale: 1.1 },
 };
 
 export const PlanInfo = () => {
@@ -134,7 +134,7 @@ export const PlanInfo = () => {
   };
 
   return (
-    <Grid2 container spacing={4} justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
+    <Grid2 container spacing={4} justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
       {/* Left Side - Room Information */}
       <Grid2
         
@@ -144,7 +144,7 @@ export const PlanInfo = () => {
         display="flex"
         flexDirection="column"
         gap={2}
-        sx={{ minHeight: 160 }}
+        sx={{ minHeight: 140 }}
       >
         <Autocomplete
           options={roomTypes}
@@ -230,7 +230,7 @@ export const PlanInfo = () => {
               justifyContent: 'center',
               gap: 1,
               flexWrap: 'wrap',
-              mb: 2,
+              mb: 0,
               width: '100%'
             }}
           >
@@ -253,7 +253,8 @@ export const PlanInfo = () => {
           {/* Map Component - Full width */}
           <Box sx={{ width: '100%' }}>
             <Map 
-              map={selectedMap}
+              map={selectedMap.map}
+              scale={selectedMap.scale}
               roomData={fullRoomData}
               selectedRoom={selectedRoom} 
               setSelectedRoom={setSelectedRoom}
