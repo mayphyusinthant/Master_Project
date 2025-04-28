@@ -405,7 +405,7 @@ export const Navigation = () => {
          borderRadius="8px"
          width="100%"
          maxWidth="100%"
-         height='65vh'
+         height = {{xs: '30vh',sm:'45vh', md:'55vh', lg:'66vh'}}
          mt={2} mb={2}
          bgcolor="#f9f9f9"
      >
@@ -428,8 +428,8 @@ export const Navigation = () => {
                 borderRadius="8px"
                 width="90%"
                 maxWidth="100%"
-                height='65vh'
-                mt={2} mb={2}
+                height = {{xs: '30vh',sm:'45vh', md:'55vh', lg:'65vh'}}
+                 mb={2}
                 bgcolor="#f9f9f9"
             >
                 <Typography color="text.additional">

@@ -263,8 +263,8 @@ const Map = ({ map: mapPath, pathCoordinates, scale = 1, onLoad }) => {
       borderRadius="8px"
 
       bgcolor="#ffffff"
-      mt={1}
-      mb={1}
+      
+      
       sx={{
       display: 'flex',
       justifyContent: 'center',
@@ -277,7 +277,7 @@ const Map = ({ map: mapPath, pathCoordinates, scale = 1, onLoad }) => {
       height: '100%',
       objectFit: 'contain',
       scale: scale, // Apply the scale prop to the SVG
-      maxHeight: '65vh',
+      height: {xs: '30vh',sm:'45vh', md:'55vh', lg:'65vh'},
       preserveAspectRatio: 'xMidYMid meet'
 //
         }
