@@ -4733,8 +4733,7 @@
   <line id="line3096" class="cls-22" x1="1305.29" y1="165.8" x2="1305.7" y2="165.8"/>
   <polyline id="polyline3096" class="cls-22" points="1305.29 164.73 1305.7 164.73 1305.7 165.8"/>
 
-
-  <rect id="walkable" data-name="walkable" class="cls-28" x="1439.54" y="114.53" width="4.7" height="4.7" cost="1"/>
+    <rect id="walkable" data-name="walkable" class="cls-28" x="1439.54" y="114.53" width="4.7" height="4.7" cost="1"/>
   <rect id="walkable" data-name="walkable" class="cls-28" x="1439.54" y="109.83" width="4.7" height="4.7" cost="1"/>
   <rect id="walkable" data-name="walkable" class="cls-28" x="1434.84" y="114.53" width="4.7" height="4.7" cost="1"/>
   <rect id="walkable" data-name="walkable" class="cls-28" x="1430.14" y="114.53" width="4.7" height="4.7" cost="1"/>
@@ -7224,18 +7223,18 @@
   <rect id="C97" data-name="C97" class="cls-28" x="767.44" y="387.13" width="4.7" height="4.7" cost="0"/>
   <rect id="C102" data-name="C102" class="cls-28" x="866.14" y="344.83" width="4.7" height="4.7" cost="0"/>
 
-  <rect id="stairs" data-name="stairs" class="cls-28" x="104.74" y="326.03" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-28" x="537.14" y="570.43" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-28" x="419.64" y="448.23" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-28" x="452.54" y="105.13" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-28" x="950.74" y="133.33" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-28" x="1340.84" y="133.33" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-28" x="908.44" y="424.73" width="4.7" height="4.7" cost="2"/>
-  <rect id="stairs" data-name="stairs" class="cls-28" x="913.14" y="603.33" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsLIBRARY1" data-name="stairsLIBRARY1" class="cls-28" x="104.74" y="326.03" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsFOOD" data-name="stairsFOOD" class="cls-28" x="537.14" y="570.43" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsFRONT3" data-name="stairsFRONT3" class="cls-28" x="419.64" y="448.23" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsLIBRARY2" data-name="stairsLIBRARY2" class="cls-28" x="452.54" y="105.13" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC" data-name="stairsJKCC" class="cls-28" x="950.74" y="133.33" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC4" data-name="stairsJKCC4" class="cls-28" x="1340.84" y="133.33" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC6" data-name="stairsJKCC6" class="cls-28" x="908.44" y="424.73" width="4.7" height="4.7" cost="2"/>
+  <rect id="stairsJKCC7"  data-name="stairsJKCC7" class="cls-28" x="913.14" y="603.33" width="4.7" height="4.7" cost="2"/>
 
-  <rect id="elevator" data-name="elevator" class="cls-28" x="884.94" y="448.23" width="4.7" height="4.7" cost="0.8"/>
-  <rect id="elevator" data-name="elevator" class="cls-28" x="1289.14" y="119.23" width="4.7" height="4.7" cost="0.8"/>
-  <rect id="elevator" data-name="elevator" class="cls-28" x="410.24" y="415.33" width="4.7" height="4.7" cost="0.8"/>
-  <rect id="elevator" data-name="elevator" class="cls-28" x="396.14" y="429.43" width="4.7" height="4.7" cost="0.8"/>
-  <rect id="elevator" data-name="elevator" class="cls-28" x="203.44" y="335.43" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorJKCC" data-name="elevatorJKCC" class="cls-28" x="884.94" y="448.23" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorJKCC2" data-name="elevatorJKCC2" class="cls-28" x="1289.14" y="119.23" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorMAIN1" data-name="elevatorMAIN1" class="cls-28" x="410.24" y="415.33" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorMAIN2" data-name="elevatorMAIN2" class="cls-28" x="396.14" y="429.43" width="4.7" height="4.7" cost="0.8"/>
+  <rect id="elevatorLIBRARY" data-name="elevatorLIBRARY" class="cls-28" x="203.44" y="335.43" width="4.7" height="4.7" cost="0.8"/>
 </svg>
