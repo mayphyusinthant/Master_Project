@@ -221,7 +221,8 @@ function InteractiveMap({ map, scale = 1, roomData = [] ,selectedRoom, setSelect
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        mt: 2
+        mt: 2,
+        mb: 3,
       }}
     >
       {/* SVG Container - Fixed width container with responsive behavior */}
@@ -229,7 +230,7 @@ function InteractiveMap({ map, scale = 1, roomData = [] ,selectedRoom, setSelect
         sx={{
           width: '90%',
           maxWidth: '95%',
-          height: '75vh',
+          height: '65vh',
           aspectRatio: 'auto',
           border: '2px solid black',
           overflow: 'hidden',
