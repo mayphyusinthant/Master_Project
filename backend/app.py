@@ -106,22 +106,69 @@ def users():
     return str(data)
 
 # api routes for react (need to be imported from file after)
+# @app.route('/api/rooms', methods=['GET'])
+# def get_rooms():
+#     room_type = request.args.get('roomType')
+
+#     if not room_type:
+#         room_type = "All"
+
+#     cur = mysql.connection.cursor()
+#     query = """
+#             SELECT * FROM room_info  
+#             JOIN class_schedule_info ON room_info.room_id = class_schedule_info.room_id
+#             """
+          
+#     cur.execute(query)
+#     rows = cur.fetchall()
+#     cur.close()
+
+#     rooms = []
+#     for row in rows:
+#          rooms.append({
+#             "roomId": row[0],  
+#             "roomName": row[1],
+#             "type": row[2],
+#             "description": row[3],
+#             "floor": row[4]
+#         })
+
+#     return jsonify(rooms)
 @app.route('/api/rooms', methods=['GET'])
 def get_rooms():
+    room_type = request.args.get('roomType')
+    if not room_type:
+        room_type = "All"
+
+    # Get current datetime
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     cur = mysql.connection.cursor()
-    query = """SELECT * FROM room_info"""
-    cur.execute(query)   
+
+    # Query: Get all rooms, and check if they are booked right now
+    query = """
+        SELECT r.room_id, r.room_name, r.room_type, r.description, r.floor, cs.title, cs.start_date_time, cs.end_date_time
+        FROM room_info r
+        LEFT JOIN class_schedule_info cs 
+            ON r.room_id = cs.room_id 
+            AND %s BETWEEN cs.start_date_time AND cs.end_date_time
+    """
+
+    cur.execute(query, (now,))
     rows = cur.fetchall()
     cur.close()
 
     rooms = []
     for row in rows:
-         rooms.append({
-            "roomId": row[0],  # fallback if description is empty
+        rooms.append({
+            "roomId": row[0],
             "roomName": row[1],
             "type": row[2],
             "description": row[3],
-            "floor": row[4]
+            "floor": row[4],
+            "scheduleTitle": row[5],
+            "startDateTime": row[6],
+            "endDateTime": row[7]
         })
 
     return jsonify(rooms)
@@ -335,6 +382,7 @@ def get_library_room_types():
     # Make sure we're returning a properly formatted JSON array
     return jsonify(library_rooms_type)
 
+
 @app.route('/api/available_library_rooms', methods=['GET'])
 def get_available_library_rooms():
 
@@ -364,10 +412,11 @@ def get_available_library_rooms():
                     OR 
                     (end_date_time >= %s AND end_date_time <= %s)
             ) 
-            AND room_name LIKE %s OR room_type LIKE %s;
+            AND (room_name LIKE %s OR room_type LIKE %s)
+            AND room_info.room_name NOT LIKE %s
         """
         
-        params = (start_dt_str, end_dt_str, start_dt_str, end_dt_str, 'L%', 'SCEBE %')
+        params = (start_dt_str, end_dt_str, start_dt_str, end_dt_str, 'L%', 'SCEBE %', 'Library')
         cur.execute(query, params)
    
     else:
@@ -381,10 +430,12 @@ def get_available_library_rooms():
                     OR 
                     (end_date_time >= %s AND end_date_time <= %s)
             ) 
-            AND room_type = %s;
+            AND room_type = %s
+            AND room_info.room_name NOT LIKE %s
+
         """
         
-        params = (start_dt_str, end_dt_str, start_dt_str, end_dt_str, room_type)
+        params = (start_dt_str, end_dt_str, start_dt_str, end_dt_str, room_type, 'Library')
         cur.execute(query, params)
 
     rows = cur.fetchall()
@@ -402,6 +453,7 @@ def get_available_library_rooms():
         })
 
     return jsonify(available_library_rooms)
+
 
 @app.route('/api/all_room_types', methods=['GET'])
 def get_all_room_types():
@@ -430,21 +482,61 @@ def get_all_room_types():
     # Make sure we're returning a properly formatted JSON array
     return jsonify(library_rooms_type)
 
+
 @app.route('/api/available_rooms', methods=['GET'])
 def get_available_rooms():
+
+    start_dt = datetime.strptime(request.args.get('start_date_time'), "%Y-%m-%d %H:%M:%S")
+    end_dt = datetime.strptime(request.args.get('end_date_time'), "%Y-%m-%d %H:%M:%S")
     room_type = request.args.get('roomType')
+
+    if not start_dt or not end_dt:
+        return jsonify({"error": "start_date_time and end_date_time are required"}), 400
 
     if not room_type:
         room_type = "All"
 
+    start_dt_str = start_dt.strftime('%Y-%m-%d %H:%M:%S')
+    end_dt_str = end_dt.strftime('%Y-%m-%d %H:%M:%S')
+
     cur = mysql.connection.cursor()
+
     if room_type == "All" or room_type == "":
-        query = """SELECT * FROM room_info;"""
-        cur.execute(query)
-   
+        query = """
+            SELECT * FROM room_info 
+            WHERE room_id NOT IN (
+                SELECT room_id 
+                FROM class_schedule_info 
+                WHERE 
+                    (start_date_time >= %s AND start_date_time <= %s)  
+                    OR 
+                    (end_date_time >= %s AND end_date_time <= %s)
+            )
+            AND room_info.room_type NOT IN (%s, %s, %s)
+            AND (room_info.room_name NOT LIKE %s AND room_info.room_name NOT LIKE %s)
+
+
+        """
+        params = (start_dt_str, end_dt_str, start_dt_str, end_dt_str, 'Stairs', 'Toilet', 'Elevator', 'Library', 'Apex Cafe')
+        cur.execute(query, params)
+
     else:
-        query = """SELECT * FROM room_info  WHERE room_type = %s; """
-        params = (room_type,)
+        query = """
+            SELECT * FROM room_info 
+            WHERE room_id NOT IN (
+                SELECT room_id 
+                FROM class_schedule_info 
+                WHERE 
+                    (start_date_time >= %s AND start_date_time <= %s)  
+                    OR 
+                    (end_date_time >= %s AND end_date_time <= %s)
+            ) 
+            AND room_info.room_type NOT IN (%s, %s, %s) 
+            AND room_type = %s
+            AND (room_info.room_name NOT LIKE %s AND room_info.room_name NOT LIKE %s)
+        """
+        
+        params = (start_dt_str, end_dt_str, start_dt_str, end_dt_str, 'Stairs', 'Toilet', 'Elevator', room_type, 'Library', 'Apex Cafe')
         cur.execute(query, params)
 
     rows = cur.fetchall()
@@ -462,6 +554,7 @@ def get_available_rooms():
         })
 
     return jsonify(available_rooms)
+
 
 @app.route('/api/current_bookings', methods=['GET'])
 def get_current_bookings():
@@ -498,6 +591,7 @@ def get_current_bookings():
 
     return jsonify(current_bookings)
 
+
 @app.route('/api/book_room', methods=['POST'])
 def book_room():
     data = request.get_json()
@@ -526,6 +620,7 @@ def book_room():
 
     return jsonify({"message": "Booking successful!"}), 201
 
+
 @app.route('/api/remove_booking/<bookingId>', methods=['DELETE'])
 def remove_booking(bookingId):
     if not bookingId:
@@ -538,6 +633,7 @@ def remove_booking(bookingId):
     cur.close()
     return jsonify({ 'message': 'Booking removed successfully.' }), 200
 
+
 @app.route('/api/history', methods=['GET'])
 def get_history():
     cur = mysql.connection.cursor()
@@ -547,6 +643,7 @@ def get_history():
     result = [dict(zip(columns, row)) for row in rows]
     cur.close()
     return jsonify(result)
+
 
 @app.route('/api/history', methods=['POST'])
 def add_history():
@@ -566,6 +663,7 @@ def add_history():
 
     return jsonify({"message": "Navigation history saved."})
 
+
 @app.route('/api/history/<int:history_id>', methods=['DELETE'])
 def delete_history_entry(history_id):
     cur = mysql.connection.cursor()
@@ -582,7 +680,32 @@ def clear_all_history():
     cur.close()
     return jsonify({"message": "All history cleared."})
 
+
 # ======= CLASS SCHEDULE ROUTES =======
+@app.route('/api/schedule_type', methods=['GET'])
+def get_schedule_type():
+    cur = mysql.connection.cursor()
+    query = """
+            SELECT COLUMN_TYPE 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_NAME = 'class_schedule_info'
+            AND COLUMN_NAME = 'schedule_type';
+        """
+    cur.execute(query)
+    row = cur.fetchone() 
+    cur.close()
+
+    schedule_types = []
+
+    if row:
+        column_type = row[0]
+        enum_values = column_type.strip("enum()").split(',')
+        schedule_types = [v.strip("'") for v in enum_values]
+
+    schedule_types_objects = [{"type": value} for value in schedule_types]
+
+    return jsonify(schedule_types_objects)
+
 
 @app.route('/api/class_schedules', methods=['GET'])
 def get_class_schedules():
@@ -611,6 +734,7 @@ def get_class_schedules():
         })
 
     return jsonify(schedules)
+
 
 @app.route('/api/create_class_schedule', methods=['POST'])
 def create_class_schedule():
@@ -641,6 +765,7 @@ def create_class_schedule():
         return jsonify({'message': 'Schedule created successfully'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/class_schedule', methods=['GET'])
 def get_class_schedule():
@@ -676,6 +801,7 @@ def get_class_schedule():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/update_class_schedule/<int:schedule_id>', methods=['PUT'])
 def update_class_schedule(schedule_id):
     data = request.get_json()
@@ -703,6 +829,7 @@ def update_class_schedule(schedule_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/delete_class_schedule/<int:schedule_id>', methods=['DELETE'])
 def delete_class_schedule(schedule_id):
     try:
@@ -713,6 +840,7 @@ def delete_class_schedule(schedule_id):
         return jsonify({'message': 'Schedule deleted successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 
 if __name__ == '__main__':

@@ -117,7 +117,6 @@ export const RoomBooking = () => {
   
         const roomValues = data.map(item => item.roomName);
         setRooms(roomValues);
-        // console.log("Room Names:", roomValues);
   
         setFullRoomData(data);
       } catch (error) {
@@ -351,9 +350,9 @@ export const RoomBooking = () => {
         </FormControl>
 
 
-        {/* Matriculation Number */}
+        {/* Matriculation Number or Staff ID */}
         <TextField
-          label="Matriculation Number"
+          label="Matriculation Number or Staff ID"
           variant="outlined"
           value={matriculationNumber}
           onChange={(e) => setMatriculationNumber(e.target.value)}

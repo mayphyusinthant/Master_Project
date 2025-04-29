@@ -18,7 +18,8 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
   },
 }));
 
-function InteractiveMap({ map, scale = 1, roomData = [] ,selectedRoom, setSelectedRoom, setSelectedType, setDescription}) {
+function InteractiveMap({ map, scale = 1, roomData = [] ,selectedRoom, setSelectedRoom, setSelectedType, 
+  setDescription, setScheduleTitile}) {
   const containerRef = useRef();
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [tooltipContent, setTooltipContent] = useState('');
@@ -110,7 +111,7 @@ function InteractiveMap({ map, scale = 1, roomData = [] ,selectedRoom, setSelect
             setSelectedRoom(matchedRoom.roomName + " (" + matchedRoom.floor + ")");
             setSelectedType("All")
             setDescription(matchedRoom.description)
-
+            setScheduleTitile(matchedRoom.setScheduleTitile)
           } else {
             // Default text if no match found
             content = `<strong>${id || 'Room'}</strong>`;
@@ -189,7 +190,10 @@ function InteractiveMap({ map, scale = 1, roomData = [] ,selectedRoom, setSelect
           <strong>Room Type:</strong> ${matchedRoom.type || 'N/A'}<br>
           ${matchedRoom.floor || 'N/A'}<br><br>
           ${matchedRoom.description ? `<strong>Description</strong><br>${matchedRoom.description}` : ''}
+          ${matchedRoom.scheduleTitle ? `<strong>Current Schedule</strong><br>${matchedRoom.scheduleTitle}` : ''}
+          
         `;
+
         setTooltipContent(content);
   
         const bbox = element.getBoundingClientRect();
