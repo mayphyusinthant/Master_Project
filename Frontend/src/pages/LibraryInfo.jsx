@@ -101,8 +101,8 @@ export const LibraryInfo = () => {
         ref={mapContainerRef}
         sx={{
           width: '100%',
-          height: 'auto', // Fixed height viewport units
-          minHeight: '500px', // Minimum height to ensure visibility
+          height: 'auto', 
+          minHeight: '500px',
           position: 'relative',
           overflow: 'hidden',
           border: '1px solid #ddd',

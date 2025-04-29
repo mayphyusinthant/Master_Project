@@ -43,6 +43,9 @@ export const PlanInfo = () => {
   const [rooms, setRooms] = useState([]);
   const [floorRooms, setFloorRooms] = useState([]); 
   const [ description, setDescription ] = useState('');
+
+  const [ scheduleTitle, setScheduleTitle ] = useState('');
+
   // Fetch room types on component mount
   useEffect(() => {
     setIsLoading(true);
@@ -70,9 +73,7 @@ export const PlanInfo = () => {
     if (selectedType) {
       setIsLoading(true);
       
-      const url = `http://localhost:5000/api/available_rooms?${params}`;
-      
-      
+      const url = `http://localhost:5000/api/rooms?${params}`;
       
       fetch(url)
         .then((response) => {
@@ -133,6 +134,21 @@ export const PlanInfo = () => {
     
   };
 
+  function formatDateRange(start, end) {
+    const optionsDate = { day: '2-digit', month: 'short', year: 'numeric' };
+    const optionsTime = { hour: 'numeric', minute: '2-digit', hour12: true };
+  
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+  
+    const dateStr = startDate.toLocaleDateString('en-GB', optionsDate);
+    const startTimeStr = startDate.toLocaleTimeString('en-GB', optionsTime);
+    const endTimeStr = endDate.toLocaleTimeString('en-GB', optionsTime);
+  
+    return `${dateStr} ${startTimeStr} - ${endTimeStr}`;
+  }
+
+  
   return (
     <Grid2 container spacing={4} justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
       {/* Left Side - Room Information */}
@@ -196,13 +212,43 @@ export const PlanInfo = () => {
         <Card sx={{ p: 1, width: 400 }}>
           <CardContent>
             {selectedRoom ? (
+             
               <>
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                  {typeof selectedRoom == 'string' ? selectedRoom : selectedRoom?.roomName}
-                </Typography>
-                <Typography variant="body1" sx={{ mt: 1 }}>
-                  {typeof selectedRoom == 'string' ? description : selectedRoom?.description}
-                </Typography>
+                {typeof selectedRoom === 'string' ? (
+                    <>
+                      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                        {selectedRoom}
+                      </Typography>
+                      <Typography variant="body1" sx={{ mt: 1 }}>
+                        {description}
+                      </Typography>
+                      <br/>
+                      {typeof scheduleTitle !== 'undefined' && scheduleTitle !== null && (
+                        <Typography>{scheduleTitle}</Typography>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                        {selectedRoom?.roomName}
+                      </Typography>
+                      <Typography variant="body1" sx={{ mt: 1 }}>
+                        {selectedRoom?.description}
+                      </Typography>
+                      <Typography variant="body1" sx={{ mt: 1 }}>
+                      {selectedRoom?.scheduleTitle && (
+                          <>
+                            <strong>Current Schedule - {selectedRoom.scheduleTitle}</strong><br />
+                            {selectedRoom.startDateTime && selectedRoom.endDateTime && (
+                              <>
+                                {formatDateRange(selectedRoom.startDateTime, selectedRoom.endDateTime)}
+                              </>
+                            )}
+                          </>
+                        )}
+                      </Typography>
+                    </>
+                  )}
                
               </>
             ) : (
@@ -260,6 +306,7 @@ export const PlanInfo = () => {
               setSelectedRoom={setSelectedRoom}
               setSelectedType={setSelectedType}
               setDescription={setDescription}
+              setScheduleTitle={setScheduleTitle}
             />
           </Box>
         </Box>
