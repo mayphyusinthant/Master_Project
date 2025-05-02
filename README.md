@@ -10,6 +10,7 @@
 * Also, a variety of frontend and backend libraries such as, React, MUI, NetworkX, svgelements.
 
 The team followed best practices, methodologies, and created a realistic work environment to simulate real life project development.<br>
+<br>
 This included: 
 1. Using collaboration tools such as Discord and Trello.
 2. Using project management tools such as Gant Chart.
