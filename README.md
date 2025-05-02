@@ -19,7 +19,10 @@ This included:
 
 #### Timeframe: 1 month
 
-The end result was a successfully built and delivered prototype of a campus navigation website.
-<img src=''> <br>
-
+The end result was a successfully built and delivered prototype of a campus navigation website.<br>
+<br>
+<img src="https://github.com/EdgarX202/Campus-Navigator-Web-App/blob/main/navigation.gif" alt="Alt text" width=65% height=65%/>
+<br>
+<br>
+<img src="https://github.com/EdgarX202/Campus-Navigator-Web-App/blob/main/mainPage.png" alt="Alt text" width=65% height=65%/>
 
