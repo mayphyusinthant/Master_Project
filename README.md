@@ -1,17 +1,25 @@
-# Master_Project
+## Edinburgh Napier University | Merchiston campus web app
+> The goal of this module is to gain experience from working in a group of people with different skills, and to successfuly build our chosen project.
+* The team consists of 3 developers with a variety of skills (backend, frontend, full stack).
+ 
+#### Navigation Web App
+* This web app is specifically designed for Merchiston campus.
+* Campus floor maps have been converted into interactable files and used with the navigation feature.
+* The main feature is to find the shortest path from room A to room B.
+* The web app was created using Python and Flask web framework.
+* Also, a variety of frontend and backend libraries such as, React, MUI, NetworkX, svgelements.
 
-Campus Navigator for Merchiston
-Mainly target for students to find their routes around the campus in real-time and help them to navigate to the selected destination or room by using our app.
+The team followed best practices, methodologies, and created a realistic work environment to simulate real life project development.<br>
+This included: 
+1. Using collaboration tools such as Discord and Trello.
+2. Using project management tools such as Gant Chart.
+3. Version control, Git and Github repo.
+4. Arranging weekly meetings and achieving weekly deliverables.
+5. Using Agile project management. 
 
-Main Features
-1. Real-time Campus Navigation 
-    Guides students to their selected destination or room within the campus efficiently. Ideal for those unfamiliar with the campus layout.
+#### Timeframe: 1 month
 
-2. Room Availability Checking
-    Allows students to check availability of library study area to plan for their study better.
+The end result was a successfully built and delivered prototype of a campus navigation website.
+<img src=''> <br>
 
-3. Class Schedule Integration
-    Students can tap on specific rooms on the interactive map to see if lectures or classes are currently in session.
 
-Area of Study
-Real-time Navigation, Campus Navigation, Web App, Path Finding
