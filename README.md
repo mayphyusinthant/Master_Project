@@ -1,5 +1,5 @@
-## Edinburgh Napier University | Merchiston campus web app
-> The goal of this module is to gain experience from working in a group of people with different skills, and to successfuly build our chosen project.
+## Edinburgh Napier University | Merchiston Campus web app
+> The goal of this group project module is to gain experience from working in a group of people with different skills, and to successfuly build our chosen project.
 * The team consists of 3 developers with a variety of skills (backend, frontend, full stack).
  
 #### Navigation Web App
